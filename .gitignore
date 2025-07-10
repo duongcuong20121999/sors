@@ -1,6 +1,7 @@
 /storage/*
-!/storage/app
-!/storage/app/public
+!/storage/app/
+!/storage/framework/
+!/storage/logs/
 /.phpunit.cache
 /public/build
 /public/hot
