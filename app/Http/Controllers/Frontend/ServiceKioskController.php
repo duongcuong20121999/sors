@@ -16,7 +16,7 @@ use Endroid\QrCode\Encoding\Encoding;
 use Endroid\QrCode\ErrorCorrectionLevel\ErrorCorrectionLevelHigh;
 use Endroid\QrCode\Writer\PngWriter;
 use App\Helpers\WorkingTimes;
-
+use App\Models\Setting;
 class ServiceKioskController extends Controller
 {
     protected $citizenServiceService;
@@ -31,9 +31,11 @@ class ServiceKioskController extends Controller
      */
     public function index()
     {
+        $setting = Setting::first();
+        $urlApiPrint = $setting->url_api_print;
         $services = Service::orderBy('order')->get();
 
-        return view('frontend.service-kiosk.index', compact('services'));
+        return view('frontend.service-kiosk.index', compact('services', 'urlApiPrint'));
     }
 
     /**

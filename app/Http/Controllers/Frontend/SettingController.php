@@ -29,12 +29,15 @@ class SettingController extends Controller
             'logo' => 'nullable|image|mimes:jpg,png,jpeg|max:2048',
             'qr_code' => 'nullable|image|mimes:jpg,png,jpeg|max:2048',
             'instruction' => 'required|string',
+            'url_api_print' => 'required|string',
+
         ], [
             'system_name.required' => 'Tên hệ thống không được để trống',
             'ward_name.required' => 'Tên phường không được để trống',
             'logo.required' => 'Logo không được để trống',
             'qr_code.required' => 'Qr code không được để trống',
             'instruction.required' => 'Hướng dẫn kích hoạt không được để trống',
+
 
 
         ]);
@@ -76,6 +79,8 @@ class SettingController extends Controller
 
         $setting->system_name = $request->system_name;
         $setting->ward_name = $request->ward_name;
+        $setting->url_api_print = $request->url_api_print;
+
         $setting->time_update = $request->time_update;
 
         $setting->instruction = preg_replace("/(\r\n|\n|\r){2,}/", "\n", $request->instruction);

@@ -64,6 +64,15 @@
                                             placeholder="Nhập thời gian (tính bằng giây)" min="1" step="1" 
                                              value="{{ old('time_update', $setting->time_update ?? '') }}"/>
                                     </div>
+
+                                    <div class="mb-3">
+                                        <label class="mb-1" for="">Url đến API in ấn:</label>
+                                        <input type="text" name="url_api_print" class="form-control system-name-input"
+                                            placeholder="Nhập Url"
+                                            value="{{ old('url_api_print', $setting->url_api_print ?? '') }}" />
+
+                                    </div>
+
                                     <div>
                                         <label class="mb-1" for="">Hướng dẫn kích hoạt Zalo mini App:</label>
                                         <div id="qr-app" class="quill-qr">
