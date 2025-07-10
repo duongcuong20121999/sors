@@ -1,0 +1,421 @@
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1;
+
+}
+
+.header {
+    background: url("../images/background-header.avif");
+    background-size: cover;
+    width: 100%;
+}
+
+
+.header-right,
+.header-left {
+    cursor: pointer;
+}
+
+.logo-wrapper {
+    background: #FFFFFFBD;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+    z-index: 10;
+}
+
+.logo {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    border-radius: 50%;
+    padding: 5px;
+}
+
+.header-title {
+    border-radius: 4px;
+    padding: 10px;
+    display: inline-block;
+    position: relative;
+    z-index: 1;
+    margin-top: 10px;
+    font-family: "Barlow", sans-serif;
+    font-weight: 600;
+    font-size: 24px;
+    color: #28CD56;
+    white-space: nowrap;
+}
+
+.header-title::before {
+    content: "";
+    position: absolute;
+    left: -9rem;
+    top: 0;
+    width: calc(100% + 150px);
+    height: 100%;
+    background-color: #FFFFFFBD;
+    border-radius: 4px;
+    z-index: -1;
+}
+
+.address {
+    font-size: 12px;
+    color: #747775;
+    margin-left: 10px;
+    font-family: "Be Vietnam Pro", sans-serif;
+    font-weight: 500;
+}
+
+.instruct-zalo {
+    background-color: #FFFFFF;
+    width: 170px;
+    height: 48px;
+    border-radius: 5px;
+    font-family: "Be Vietnam Pro", sans-serif;
+    font-size: 10px;
+}
+
+.instruct-zalo img {
+    width: 36px;
+    height: 36px;
+}
+
+.logo-qr img {
+    width: 96px;
+    height: 96px;
+}
+
+.display-kiosk {
+    height: 68vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    /* border: 1px solid red; */
+}
+
+.display-kiosk::-webkit-scrollbar {
+    width: 6px;
+}
+
+.display-kiosk::-webkit-scrollbar-thumb {
+    background-color: #D9D9D9;
+    border-radius: 3px;
+}
+
+.display-kiosk span {
+    font-family: "Be Vietnam Pro", sans-serif;
+    font-weight: 500;
+    font-size: 16px;
+    color: #4F4F4F;
+
+}
+
+.kiosk {
+    background-color: #FAFCFF;
+    border: 1px solid #EEEEEE;
+    border-radius: 5px;
+    height: 170px;
+    cursor: pointer;
+}
+
+.kiosk-wrapper img {
+    width: 70px;
+    height: 70px;
+    object-fit: cover;
+    border-radius: 50%;
+    padding: 3px;
+    border: 1px solid #28CD56;
+    background-color: #FFFFFF;
+}
+
+
+.footer-kiosk {
+    background-color: #DBD6D6;
+}
+
+.footer-kiosk img {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+}
+
+.footer-kiosk-wrapper {
+    background-color: white;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 1px solid #28CD56;
+}
+
+
+/* modal infomodal*/
+#infoModal .modal-header {
+    background-color: #EEEEEE;
+}
+#infoModal {
+    z-index: 1061;
+}
+
+#infoModal .modal-body ul {
+    list-style: none;
+}
+
+#infoModal .modal-body ul li {
+    font-family: "Be Vietnam Pro", sans-serif;
+    font-weight: 500;
+    font-size: 12px;
+    color: #000000;
+    line-height: 30px;
+}
+
+#infoModal .modal-footer button {
+    color: white;
+    background: linear-gradient(#418FF5, #1562F1);
+    width: 86px;
+    height: 34px;
+    border: none;
+    border-radius: 20px;
+    font-family: "Poppins", sans-serif;
+    font-weight: 500;
+    font-size: 12px;
+}
+
+/* kiosk modal */
+#kioskModal .modal-header {
+    background-color: #EEEEEE;
+}
+
+#kioskModal img {
+    width: 40px;
+    height: 40px;
+}
+
+#kioskModal .modal-header p {
+    font-family: "Be Vietnam Pro", sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    color: #000000;
+}
+
+#kioskModal .line-modal {
+    width: 2px;
+    background-color: #EEEEEE;
+
+}
+
+#kioskModal .modal-body ul {
+    list-style: none;
+    font-family: "Be Vietnam Pro", sans-serif;
+    font-weight: 500;
+    font-size: 12px;
+    color: #000000;
+}
+
+#kioskModal .modal-body ul li {
+    margin-left: 10px;
+    line-height: 30px;
+}
+
+#kioskModal .modal-footer {
+    justify-content: flex-start;
+}
+
+#kioskModal .modal-footer button {
+    color: white;
+    border: none;
+    border-radius: 20px;
+    font-family: "Poppins", sans-serif;
+    font-weight: 500;
+    font-size: 12px;
+}
+
+.button-close {
+    width: 86px;
+    height: 34px;
+    background: linear-gradient(#418FF5, #1562F1);
+}
+
+.button-stt {
+    width: 136px;
+    height: 34px;
+    background: linear-gradient(#4DD969, #28CD56);
+}
+
+/* modal number */
+#numberModal .modal-header {
+    background-color: #EEEEEE;
+    font-family: "Be Vietnam Pro", sans-serif;
+    font-size: 14px;
+    color: #000000;
+}
+
+#numberModal .line-modal {
+    width: 2px;
+    background-color: #EEEEEE;
+}
+
+#numberModal .modal-body ul {
+    list-style: none;
+    font-family: "Be Vietnam Pro", sans-serif;
+    font-weight: 500;
+    font-size: 12px;
+    color: #000000;
+    padding: 0;
+}
+
+#numberModal .modal-body ul li {
+    margin-left: 10px;
+    line-height: 25px;
+}
+
+.modal-body-1 {
+    width: 185px;
+    height: 152px;
+    border: 1px dashed #28CD56;
+}
+
+#numberModal .modal-footer button {
+    color: white;
+    border: none;
+    border-radius: 20px;
+    font-family: "Poppins", sans-serif;
+    font-weight: 500;
+    font-size: 12px;
+}
+
+.content-guide img {
+    max-width: 100%;
+    height: auto;
+    display: block; /* hoặc inline-block tùy trường hợp */
+    object-fit: contain;
+}
+
+#service-tasks img {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    max-width: 100%;
+}
+
+#service-notes img {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    max-width: 100%;
+}
+#service-notes-number img{
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    max-width: 100%;
+}
+
+.note-kiosk ,
+.task-modal {
+    height: 255px;
+    overflow-y:auto;
+    width: 400px;
+}
+
+.content-guide {
+    height: 325px;
+    overflow-y: auto;
+}
+.note-kiosk::-webkit-scrollbar,
+.task-modal::-webkit-scrollbar,
+.content-guide::-webkit-scrollbar {
+    width: 6px;
+}
+
+.note-kiosk::-webkit-scrollbar-thumb,
+.task-modal::-webkit-scrollbar-thumb,
+.content-guide::-webkit-scrollbar-thumb {
+    background-color: #D9D9D9;
+    border-radius: 3px;
+}
+
+.kiosk.selected {
+    background-color: #e6f7ff;
+    transition: background-color 0.3s ease;
+}
+
+.image-wrap {
+    /* border: 1px solid red; */
+  width: 60px;
+  height: 40px;
+  overflow: hidden;
+  position: relative;
+}
+
+.arrow-loop {
+  position: absolute;
+  /* height: 40px; */
+  animation: runArrow 3s linear infinite;
+}
+.arrow-loop2 {
+  position: absolute;
+  animation: runArrow2 3s linear infinite;
+}
+
+@keyframes runArrow2 {
+  100% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  90% {
+    opacity: 1;
+  }
+  10% {
+    transform: translateX(100%);
+    opacity: 1;
+  }
+  0% {
+    transform: translateX(120%);
+    opacity: 0;
+  }
+}
+
+@keyframes runArrow {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    transform: translateX(100%);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(120%);
+    opacity: 0;
+  }
+}
+
+@keyframes swing {
+    0%   { transform: rotate(-15deg); }
+    100% { transform: rotate(15deg); }
+}
+
+.swinging {
+    transform-origin: top center;
+    animation: swing 1s ease-in-out infinite alternate;
+}
