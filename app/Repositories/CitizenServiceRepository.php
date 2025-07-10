@@ -3,6 +3,7 @@
 // app/Repositories/CitizenRepository.php
 namespace App\Repositories;
 
+use App\Enums\Status;
 use App\Models\CitizenService;
 use Carbon\Carbon;
 
@@ -20,7 +21,11 @@ class CitizenServiceRepository
     public function findByCreatedDate($id, $create_date)
     {
         return CitizenService::where('service_id', $id)
-            ->whereIn('status', [0, 1, 2])
+            ->whereIn('status', [
+                Status::New->value,
+                Status::Reviewing->value,
+                Status::InProgress->value
+            ])
             ->whereDate('created_date', $create_date)
             ->orderBy('sequence_number', 'desc')
             ->get();
@@ -29,7 +34,11 @@ class CitizenServiceRepository
     public function findByAppointmentDate($id, $appointment_date)
     {
         return CitizenService::where('service_id', $id)
-            ->whereIn('status', [0, 1, 2])
+            ->whereIn('status', [
+                Status::New->value,
+                Status::Reviewing->value,
+                Status::InProgress->value
+            ])
             ->whereDate('appointment_date', $appointment_date)
             ->orderBy('sequence_number', 'desc')
             ->get();
@@ -38,7 +47,11 @@ class CitizenServiceRepository
     public function findFromAppointmentDate($appointment_date)
     {
         return CitizenService::whereDate('appointment_date', '>=', $appointment_date)
-            ->whereIn('status', [0, 1, 2])
+            ->whereIn('status', [
+                Status::New->value,
+                Status::Reviewing->value,
+                Status::InProgress->value
+            ])
             ->where('source', '!=', 'zalo')
             ->orderBy('appointment_date', 'asc')
             ->get();

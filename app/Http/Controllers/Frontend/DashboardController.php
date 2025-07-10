@@ -7,6 +7,8 @@ use App\Models\CitizenService;
 use App\Models\Service;
 use Illuminate\Http\Request;
 
+use App\Enums\Status;
+
 class DashboardController extends Controller
 {
 
@@ -19,7 +21,12 @@ class DashboardController extends Controller
         $services = Service::all()->sortBy('order');
         $statusOptions = getAllStatusCS();
 
-        $query = CitizenService::with(['citizen', 'service'])->whereIn('status', [0, 1, 2, 3]);
+        $query = CitizenService::with(['citizen', 'service'])->whereIn('status', [
+            Status::New->value,
+            Status::Reviewing->value,
+            Status::InProgress->value,
+            Status::Done->value
+        ]);
 
         // Lọc theo mã dịch vụ nếu có
         if ($request->filled('service_code')) {
@@ -164,7 +171,12 @@ class DashboardController extends Controller
         $serviceCode = $request->input('service_code', '');
         $citizenName = $request->input('citizen_name', '');
 
-        $query = CitizenService::with(['citizen', 'service'])->whereIn('status', [0, 1, 2, 3]);
+        $query = CitizenService::with(['citizen', 'service'])->whereIn('status', [
+            Status::New->value,
+            Status::Reviewing->value,
+            Status::InProgress->value,
+            Status::Done->value
+        ]);
 
         if ($serviceCode) {
             $query->whereHas('service', function ($q) use ($serviceCode) {
@@ -218,7 +230,12 @@ class DashboardController extends Controller
         $service->save();
 
 
-        $query = CitizenService::with(['citizen', 'service'])->whereIn('status', [0, 1, 2, 3]);
+        $query = CitizenService::with(['citizen', 'service'])->whereIn('status', [
+            Status::New->value,
+            Status::Reviewing->value,
+            Status::InProgress->value,
+            Status::Done->value
+        ]);
 
         if ($request->filled('service_code')) {
             $query->whereHas('service', function ($q) use ($request) {
@@ -267,7 +284,12 @@ class DashboardController extends Controller
         $citizenService->save();
 
 
-        $query = CitizenService::with(['citizen', 'service'])->whereIn('status', [0, 1, 2, 3]);
+        $query = CitizenService::with(['citizen', 'service'])->whereIn('status', [
+            Status::New->value,
+            Status::Reviewing->value,
+            Status::InProgress->value,
+            Status::Done->value
+        ]);
 
 
         if ($request->filled('service_code')) {
@@ -331,9 +353,15 @@ class DashboardController extends Controller
         CitizenService::whereIn('id', $ids)->update(['status' => 6]);
 
         $citizenServices = CitizenService::with(['citizen', 'service'])
-            ->whereIn('status', [0, 1, 2, 3])
+            ->whereIn('status', [ 
+            Status::New->value,
+            Status::Reviewing->value,
+            Status::InProgress->value,
+            Status::Done->value])
             ->orderBy('appointment_date')
             ->get();
+
+            
 
         $updatedListHtml = view('partials._citizen_service_list', compact('citizenServices'))->render();
 

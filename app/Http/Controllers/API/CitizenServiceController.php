@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Enums\Status;
 use App\Helpers\GroupStatus;
 use Illuminate\Http\Request;
 use App\Models\Citizen;
@@ -48,16 +49,18 @@ class CitizenServiceController extends Controller
         $existingRegistration = CitizenService::where('citizen_id', $citizen->id)
             ->where('service_id', $service->id)
             ->whereBetween('created_at', [$startOfDay, $endOfDay])
-            ->whereIn('status', ['0', '1', '2'])
+            ->whereIn('status', [
+                Status::New->value,
+                Status::Reviewing->value,
+                Status::InProgress->value])
             ->first();
 
         if ($existingRegistration) {
             return response()->json([
                 'success' => false,
-                'errorCode' => 400,
-                'message' => 'Hệ thống ghi nhận quý công dân đã có một lượt đăng ký dịch vụ này trong ngày. Đăng ký mới sẽ được mở sau khi dịch vụ hiện tại hoàn tất!',
+                'message' => 'Hệ thống ghi nhận quý công dân đã có một lượt đăng ký dịch vụ này đang được xử lý trong ngày hôm nay. Vui lòng chờ hoàn tất hoặc đăng ký lại vào ngày hôm sau!',
                 'data' => null
-            ], 400);
+            ], 200);
         }
 
         // Check 2: Citizen đã đăng ký bao nhiêu dịch vụ khác nhau hôm nay
@@ -69,10 +72,9 @@ class CitizenServiceController extends Controller
         if ($countServicesToday >= 3) {
             return response()->json([
                 'success' => false,
-                'errorCode' => 400,
                 'message' => 'Không thể thực hiện đăng ký. Theo quy định, mỗi công dân chỉ được phép đăng ký tối đa 03 dịch vụ mỗi ngày!',
                 'data' => null
-            ], 400);
+            ], 200);
         }
 
         $data = [
@@ -142,8 +144,14 @@ class CitizenServiceController extends Controller
 
         $summary = [
             'created'    => $query->clone()->count(), // Tất cả status
-            'processing'  => $query->clone()->whereIn('status', [0, 1, 2])->count(),
-            'completed'  => $query->clone()->whereIn('status', [3, 4])->count(),
+            'processing'  => $query->clone()->whereIn('status', [ 
+            Status::New->value,
+            Status::Reviewing->value,
+            Status::InProgress->value])->count(),
+            'completed'  => $query->clone()->whereIn('status', [
+                Status::Done->value,
+                Status::Closed->value
+            ])->count(),
         ];
 
         return response()->json([
@@ -154,7 +162,7 @@ class CitizenServiceController extends Controller
     public function getByZaloAndStatus(Request $request)
     {
         $zaloId = $request->input('zalo_id');
-        $statusGroup = $request->input('status_group'); // nhận '0', '1', '2'
+        $statusGroup = $request->input('status_group'); 
 
         $statusMap = GroupStatus::statusGroups();
 
