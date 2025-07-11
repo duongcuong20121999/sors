@@ -949,9 +949,9 @@
             });
         }
 
-            // getUpdateInterval().then(() => {
-            //     setInterval(autoReloadCitizenServices, updateInterval);
-            // });
+            getUpdateInterval().then(() => {
+                setInterval(autoReloadCitizenServices, updateInterval);
+            });
     </script>
 
 
