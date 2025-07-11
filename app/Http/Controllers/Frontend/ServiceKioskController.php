@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Citizen;
 //use App\Models\CitizenService;
 use App\Models\Service;
+use App\Models\Setting;
 use App\Services\CitizenServiceService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,21 +16,19 @@ use Endroid\QrCode\Builder\Builder;
 use Endroid\QrCode\Encoding\Encoding;
 use Endroid\QrCode\ErrorCorrectionLevel\ErrorCorrectionLevelHigh;
 use Endroid\QrCode\Writer\PngWriter;
-use App\Helpers\WorkingTimes;
-use App\Models\Setting;
+
 class ServiceKioskController extends Controller
 {
-    protected $citizenServiceService;
-
-    public function __construct(CitizenServiceService $citizenServiceService)
+    protected $citizenService;
+    public function __construct(CitizenServiceService $citizenService)
     {
-        $this->citizenServiceService = $citizenServiceService;
+        $this->citizenService = $citizenService;
     }
 
     /**
      * Display a listing of the resource.
      */
-    public function index()
+     public function index()
     {
         $setting = Setting::first();
         $urlApiPrint = $setting->url_api_print;
@@ -37,6 +36,7 @@ class ServiceKioskController extends Controller
 
         return view('frontend.service-kiosk.index', compact('services', 'urlApiPrint'));
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -117,23 +117,38 @@ class ServiceKioskController extends Controller
             ], 404);
         }
 
-        
-        
+        // Calculate appointment date based on service process time
+        $now = now();
+        $appointmentDate = $now->copy();
+
+        if (!$service->unlimited_duration || $service->unlimited_duration == 0) {
+            // Add process hours and minutes
+            $hours = intval(!$service->process_hours || $service->process_hours < 0 ? 0 : $service->process_hours);
+            $minutes = intval(!$service->process_minutes || $service->process_minutes < 0 ? 0 : $service->process_minutes);
+            $appointmentDate->addHours($hours)
+                ->addMinutes($minutes);
+                 // Add 60 minutes buffer
+        } else {
+            // If unlimited duration, set to next day
+            $appointmentDate->addDay();
+        }
+
         $data = [
             'citizen_id' => $citizen->id,
             'service_id' => $service->id,
-            'order' => $service->order,
-            'appointment_date' => now()->setTimezone('Asia/Ho_Chi_Minh'),
-            'source' => 'kiosk'
+            'created_date' => $now,
+            'updated_date' => $now,
+            'appointment_date' => $appointmentDate,
+            'order' => $service->order
         ];
 
         // Create citizen service record
-        $result = $this->citizenServiceService->create($data);
+        $result = $this->citizenService->create($data);
 
-        $registeredRecord =  $result->record;
+        $citizenServiceRecord = $result->record;
 
-        $customLink = url("/dashboard/{$registeredRecord->id}");
-
+        // Generate QR code
+        $customLink = url("/dashboard/{$citizenServiceRecord->id}");
         $qrResult = Builder::create()
             ->writer(new PngWriter())
             ->data($customLink)
@@ -146,9 +161,9 @@ class ServiceKioskController extends Controller
         $fileName = 'qr_codes/' . Str::uuid() . '.png';
         Storage::disk('public')->put($fileName, $qrResult->getString());
 
-        $registeredRecord->qr_code = 'storage/' . $fileName;
-        $registeredRecord->save();
+        $citizenServiceRecord->qr_code = 'storage/' . $fileName;
 
+        $citizenServiceRecord->save();
 
         //$this->citizenService->update($citizenServiceRecord->id, $citizenServiceRecord);
 
@@ -157,13 +172,13 @@ class ServiceKioskController extends Controller
             'service_name' => $service->name,
             'counter' => $service->order,
             'notes' => $service->description,
-            'sequence_number' => $registeredRecord->sequence_number,
-            'appointment_start_date' => $registeredRecord->appointment_date->format('H:i:s Y-m-d'),
-            'appointment_date' => $registeredRecord->appointment_date->format('H:i:s Y-m-d'),
-            'created_date' => $registeredRecord->created_date->format('H:i:s Y-m-d'),
-            'record_id' => $registeredRecord->id,
+            'sequence_number' => $citizenServiceRecord->sequence_number,
+            'appointment_date' => $appointmentDate->format('Y-m-d H:i:s'),
+            'created_date' => $citizenServiceRecord->created_date->format('Y-m-d H:i:s'),
+            'record_id' => $citizenServiceRecord->id,
             'qr_code_url' => asset('storage/' . $fileName),
             'count_ahead' =>  $result->count_ahead
         ]);
     }
+
 }

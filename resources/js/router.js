@@ -221,6 +221,36 @@ async function showProcessModal(button) {
 
         const citizenServiceId = data.id;
 
+        //update status to reviewed to support reader
+        fetch(`${basePath}/dashboard/citizen-service/update-status?service_code=${serviceCode}&citizen_name=${citizenName}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector(
+                        'meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    id: citizenServiceId,
+                    status: 1
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+
+
+                    document.querySelector(`#citizen-service-list`).innerHTML =
+                        data.updatedView;
+
+                    renderUtcTimes();
+
+                } else {
+                    console.error('Cập nhật thất bại');
+                }
+            })
+            .catch(error => console.error('Lỗi:', error));
+
+
         // Đẩy dữ liệu vào Quill Editor #editor-process
         editorDone.root.innerHTML = data.citizen_note ?? '';
 

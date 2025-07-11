@@ -18,7 +18,8 @@
             <div>
                 <p class="mb-0 name-service" style="max-width: 180px;">{{ $citizenService->service->name }}</p>
                 <span class="utc-time"
-                    data-time="{{ \Carbon\Carbon::parse($cs->created_date)->setTimezone('Asia/Ho_Chi_Minh')->toIso8601String() }}"></span>
+                      data-time="{{ \Carbon\Carbon::parse($cs->appointment_date)->toIso8601String() }}" >
+                    </span>
                     <br>
                 {{-- <span class="utc-time"
                     data-time="{{ \Carbon\Carbon::parse($cs->appointment_date)->toIso8601String() }}"></span> --}}
@@ -40,7 +41,6 @@
             <button type="button" class="custom-btn-2" data-id="{{ $citizenService->id }}">Hủy yêu cầu</button>
         </div>
     </div>
-
 
 
 

@@ -5,7 +5,7 @@
 @section('meta_description', 'Trang quản trị dành cho cán bộ theo dõi, xử lý và giám sát đăng ký dịch vụ.')
 
 @section('content')
-
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     {{-- <div class="alert alert-danger">{{ session('message') }}</div> --}}
     <div class="main-screen show">
         <div class="header-main-screen d-flex justify-content-end">
@@ -141,18 +141,15 @@
                                 <input type="hidden" name="citizen_note" id="citizen_note">
                             </div>
                             <input type="hidden" name="status" class="status" id="status">
-                            {{-- <div>
-                                <label for="processNote" class="form-label">Ghi chú:</label>
-                                <textarea class="form-control custom-textarea" name="citizen_note" id="processNote" rows="3"></textarea>
-                            </div> --}}
 
-                            <div class="form-check d-flex justify-content-end mt-3">
+
+                            {{-- <div class="form-check d-flex justify-content-end mt-3">
                                 <input class="form-check-input" type="checkbox" id="startProcessing"
                                     name="start_processing">
                                 <label class="form-check-label ms-2" for="startProcessing">
                                     Bắt đầu xử lý
                                 </label>
-                            </div>
+                            </div> --}}
 
                         </div>
 
@@ -952,9 +949,9 @@
             });
         }
 
-        getUpdateInterval().then(() => {
-            setInterval(autoReloadCitizenServices, updateInterval);
-        });
+            // getUpdateInterval().then(() => {
+            //     setInterval(autoReloadCitizenServices, updateInterval);
+            // });
     </script>
 
 

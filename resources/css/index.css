@@ -2724,6 +2724,12 @@ body.modal-open {
     color: #1A1B23;
 }
 
+.volume-icon{
+    color: #ffa500; font-size: 35px; margin: 10px 0 0 20px;
+}
+
+
+
 .ql-editor {
     font-weight: normal;
 }
