@@ -1,4 +1,3 @@
-
 <html lang="en">
 
 <head>
@@ -11,6 +10,29 @@
     <title>Quản lý dịch vụ một cửa</title>
 </head>
 
+<style>
+        .kiosk-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+    
+        .kiosk-row ul {
+            padding-left: 20px;
+            list-style-type: disc;
+            margin: 0;
+        }
+
+        .kiosk-row li {
+            margin-bottom: 4px;
+        }
+        
+        p {
+            margin: 0;
+        }
+    </style>
+
 <?php $setting = App\Models\Setting::first(); ?>
 
 <body>
@@ -18,18 +40,19 @@
         <div class="container-fluid d-flex justify-content-lg-between">
             <div class="header-left d-flex align-items-center">
                 <div class="logo-wrapper me-3">
-                    <img src="{{ !empty($setting->logo) ? asset($setting->logo) : asset('frontend/assets/images/logo.png') }}" alt="Logo" class="logo" />
+                    <img src="{{ !empty($setting->logo) ? asset($setting->logo) : asset('frontend/assets/images/logo.png') }}"
+                        alt="Logo" class="logo" />
                 </div>
                 <div class="header-text d-flex flex-column">
                     <p class="header-title mb-0">
                         @if (!empty($setting->system_name))
-                        {{-- Nếu có chữ SOSR thì đưa vào <span> --}}
-                        {!! str_contains($setting->system_name, 'SOSR')
-                        ? str_replace('SOSR', '<span class="text-dark">SOSR</span>', $setting->system_name)
-                        : $setting->system_name !!}
+                            {{-- Nếu có chữ SOSR thì đưa vào <span> --}}
+                            {!! str_contains($setting->system_name, 'SOSR')
+                                ? str_replace('SOSR', '<span class="text-dark">SOSR</span>', $setting->system_name)
+                                : $setting->system_name !!}
                         @else
-                        HỆ THỐNG ĐĂNG KÍ DỊCH VỤ MỘT CỬA
-                        <span class="text-dark">SOSR</span>
+                            HỆ THỐNG ĐĂNG KÍ DỊCH VỤ MỘT CỬA
+                            <span class="text-dark">SOSR</span>
                         @endif
                     </p>
                     <span class="address mt-1"> {{ $setting->ward_name ?? 'PHƯỜNG QUANG TRUNG - TỈNH NGHỆ AN' }}</span>
@@ -51,30 +74,34 @@
             </div>
         </div>
     </header>
-
+    
     <main>
         <div class="display-kiosk mt-5 mx-4 ">
             <div class="container-fluid">
                 <div class="row">
                     @foreach ($services as $service)
+                        @if ($service->is_active != 0 && $service->code != 'HDDV')
+                            <div class="col-12 col-sm-6 col-md-4 pt-4 pb-3 px-4">
+                                <div class="kiosk ">
+                                    <input type="hidden" class="id-service-kiosk" value="{{ $service->id }}">
+                                    <div class="kiosk-wrapper kiosk-row my-4" style="margin: 0 30px;">
+                                        <div class="m-auto">
+                                            <img src="{{ asset($service->icon) }}" alt="{{ $service->name }}">
+                                        </div>
+                                        
+                                        <div style="margin-top: 20px;">
+                                            <p class="m-0 fw-bold">{!! $service->mission !!}</p>
+                                        </div>
+                                    </div>
 
-                    @if ($service->is_active != 0 && $service->code != 'HDDV')
-
-                    <div class="col-12 col-sm-6 col-md-4 pt-4 pb-3 px-4">
-                        <div class="kiosk text-center">
-                            <input type="hidden" class="id-service-kiosk" value="{{ $service->id }}">
-                            <div class="kiosk-wrapper my-4">
-                                <img src="{{ asset($service->icon) }}" alt="{{ $service->name }}">
+                                    <span class="mb-3 d-block text-center">
+                                        QUẦY
+                                        {{ is_numeric($service->order) ? str_pad($service->order, 2, '0', STR_PAD_LEFT) : $service->order }}:
+                                        {{ mb_strtoupper($service->name, 'UTF-8') }}
+                                    </span>
+                                </div>
                             </div>
-
-                            <span class="mb-3 d-block">
-                                QUẦY
-                                {{ is_numeric($service->order) ? str_pad($service->order, 2, '0', STR_PAD_LEFT) : $service->order }}:
-                                {{ mb_strtoupper($service->name, 'UTF-8') }}
-                            </span>
-                        </div>
-                    </div>
-                    @endif
+                        @endif
                     @endforeach
 
 
@@ -150,7 +177,8 @@
 
                     <div class="note-kiosk" id="note-kiosk" style="overflow-y: auto;">
                         <div class="d-flex justify-content-center align-items-center">
-                            <img id="note-image" src="{{ asset('frontend/assets/images/note.png') }}" alt="">
+                            <img id="note-image" src="{{ asset('frontend/assets/images/note.png') }}"
+                                alt="">
                         </div>
                         <p class="m-0 fw-bold">LƯU Ý</p>
                         <div id="service-notes">
@@ -164,10 +192,11 @@
                             <img style="width: 48px;height: 48px;" src="{{ asset($setting->qr_code ?? '') }}"
                                 alt="logo-qr">
                         </div>
-                        <div class="instruct-zalo d-flex justify-content-between" style="cursor: pointer;width: 200px">
+                        <div class="instruct-zalo d-flex justify-content-between"
+                            style="cursor: pointer;width: 200px">
                             <div class="image-wrap d-flex align-items-center justify-content-center">
-                                <img class="arrow-loop2" src="{{ asset('frontend/assets/images/arrow-right.avif') }}" alt=""
-                                    style="width: 35px;height: 35px;">
+                                <img class="arrow-loop2" src="{{ asset('frontend/assets/images/arrow-right.avif') }}"
+                                    alt="" style="width: 35px;height: 35px;">
                             </div>
                             <p class=" fw-bold m-0 d-flex justify-content-center align-items-center">Kích hoạt Zalo app
                                 <br> để lấy số trực tuyến tại đây
@@ -208,7 +237,8 @@
                     <!-- Cột phải -->
                     <div class="w-50" style="width: 400px;">
                         <div class="d-flex justify-content-center align-items-center">
-                            <img id="note-image2" src="{{ asset('frontend/assets/images/note.png') }}" alt="">
+                            <img id="note-image2" src="{{ asset('frontend/assets/images/note.png') }}"
+                                alt="">
                         </div>
                         <ul>
                             <p class="m-0 fw-bold">LƯU Ý:</p>
@@ -227,10 +257,11 @@
                             <img style="width: 48px;height: 48px;" src="{{ asset($setting->qr_code ?? '') }}"
                                 alt="logo-qr">
                         </div>
-                        <div class="instruct-zalo d-flex justify-content-between" style="cursor: pointer;width: 200px">
+                        <div class="instruct-zalo d-flex justify-content-between"
+                            style="cursor: pointer;width: 200px">
                             <div class=" image-wrap d-flex align-items-center justify-content-center">
-                                <img class="arrow-loop2" src="{{ asset('frontend/assets/images/arrow-right.avif') }}" alt=""
-                                    style="width: 35px;height: 35px;">
+                                <img class="arrow-loop2" src="{{ asset('frontend/assets/images/arrow-right.avif') }}"
+                                    alt="" style="width: 35px;height: 35px;">
                             </div>
                             <p class=" fw-bold m-0 d-flex justify-content-center align-items-center">Kích hoạt Zalo app
                                 <br> để lấy số trực tuyến tại đây
@@ -359,7 +390,8 @@
                         const printData = {
                             sequence_number: data.sequence_number,
                             count_ahead: data.count_ahead,
-                            appointment_date: new Date(new Date().getTime() + (7 * 60 * 60 * 1000)).toISOString().replace('T', ' ').slice(0, 19)
+                            appointment_date: new Date(new Date().getTime() + (7 * 60 * 60 * 1000))
+                                .toISOString().replace('T', ' ').slice(0, 19)
                         };
 
                         console.log('Sending data to printer:', printData);
@@ -383,7 +415,7 @@
                                 return result;
                             } catch (error) {
                                 console.error('Cannot call API printer');
-                                
+
                                 try {
                                     console.log('Sending error message to server...');
                                     const errorResponse = await fetch(KIOSK_PRINTER_URL, {
@@ -394,18 +426,23 @@
                                         body: JSON.stringify({
                                             ...printData,
                                             error: error.message,
-                                            error_time: new Date(new Date().getTime() + (7 * 60 * 60 * 1000)).toISOString().replace('T', ' ').slice(0, 19)
+                                            error_time: new Date(new Date().getTime() +
+                                                    (7 * 60 * 60 * 1000)).toISOString()
+                                                .replace('T', ' ').slice(0, 19)
                                         })
                                     });
 
                                     if (!errorResponse.ok) {
-                                        throw new Error(`Error report failed with status: ${errorResponse.status}`);
+                                        throw new Error(
+                                            `Error report failed with status: ${errorResponse.status}`
+                                        );
                                     }
 
                                     const errorResult = await errorResponse.json();
                                     console.log('Error report sent to server successfully');
                                 } catch (reportError) {
-                                    console.error('Unable to send error report to server:', reportError);
+                                    console.error('Unable to send error report to server:',
+                                        reportError);
                                 }
                             }
                         };
@@ -418,12 +455,14 @@
                             document.querySelector('#numberModal .modal-body-1 span').textContent =
                                 `Quầy số ${String(result.counter).padStart(2, '0')}`;
 
-                            document.querySelector('#numberModal .modal-body-1 p').textContent = result.sequence_number;
+                            document.querySelector('#numberModal .modal-body-1 p').textContent = result
+                                .sequence_number;
 
                             document.getElementById('count-ahead').textContent = result.count_ahead;
 
                             // Mở modal
-                            const numberModal = new bootstrap.Modal(document.getElementById('numberModal'), {
+                            const numberModal = new bootstrap.Modal(document.getElementById(
+                                'numberModal'), {
                                 keyboard: false
                             });
                             numberModal.show();

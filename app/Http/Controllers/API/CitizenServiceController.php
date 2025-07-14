@@ -77,20 +77,37 @@ class CitizenServiceController extends Controller
             ], 200);
         }
 
+        // Calculate appointment date based on service process time
+        $now = now();
+        $appointmentDate = $now->copy();
+
+        if (!$service->unlimited_duration || $service->unlimited_duration == 0) {
+            // Add process hours and minutes
+            $hours = intval(!$service->process_hours || $service->process_hours < 0 ? 0 : $service->process_hours);
+            $minutes = intval(!$service->process_minutes || $service->process_minutes < 0 ? 0 : $service->process_minutes);
+            $appointmentDate->addHours($hours)
+                ->addMinutes($minutes);
+    
+        } else {
+            // If unlimited duration, set to next day
+            $appointmentDate->addDay();
+        }
+
         $data = [
             'citizen_id' => $citizen->id,
             'service_id' => $service->id,
-            'order' => $service->order,
-            'appointment_date' => now()->setTimezone('Asia/Ho_Chi_Minh'),
-            'source' => 'zalo'
+            'created_date' => $now,
+            'updated_date' => $now,
+            'appointment_date' => $appointmentDate,
+            'order' => $service->order
         ];
 
         // Create citizen service record
         $result = $this->citizenServiceService->create($data);
 
-        $registeredRecord =  $result->record;
+        $citizenService =  $result->record;
 
-        $customLink = url("/dashboard/{$registeredRecord->id}");
+        $customLink = url("/dashboard/{$citizenService->id}");
 
         $qrResult = Builder::create()
             ->writer(new PngWriter())
@@ -104,27 +121,26 @@ class CitizenServiceController extends Controller
         $fileName = 'qr_codes/' . Str::uuid() . '.png';
         Storage::disk('public')->put($fileName, $qrResult->getString());
 
-        $registeredRecord->qr_code = 'storage/' . $fileName;
-        $registeredRecord->save();
+        $citizenService->qr_code = 'storage/' . $fileName;
+        $citizenService->save();
 
         return response()->json([
-            'success' => true,
-            'errorCode' => 200,
-            'message' => 'Đăng ký dịch vụ thành công!',
+            'message' => 'Service registered successfully',
             'qr_code_url' => asset('storage/' . $fileName),
             'data' => [
                 'name' => $citizen->name,
                 'phone_number' => $citizen->phone_number,
-                'sequence_number' => $registeredRecord->sequence_number,
-                'appointment_date' => $registeredRecord->appointment_date->format('Y-m-d H:i:s'),
-                'created_date' => $registeredRecord->created_date->format('Y-m-d H:i:s'),
+                'sequence_number' => $citizenService->sequence_number,
+                'appointment_date' => $appointmentDate->format('Y-m-d H:i:s'),
+                'created_date' => $citizenService->created_date->format('Y-m-d H:i:s'),
                 'service_name' => $service->name,
                 'counter' => $service->order,
-                'qr_code' => $registeredRecord->qr_code,
+                'qr_code' => $citizenService->qr_code,
                 'count_ahead' =>  $result->count_ahead
             ]
         ]);
     }
+
 
     public function summaryByZaloId(Request $request)
     {
