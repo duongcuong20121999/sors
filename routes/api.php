@@ -22,7 +22,7 @@ Route::post('/register-service', [CitizenServiceController::class, 'registerServ
 Route::get('/citizen-service/status-summary', [CitizenServiceController::class, 'summaryByZaloId']);
 Route::get('/citizen-services/by-status', [CitizenServiceController::class, 'getByZaloAndStatus']);
 Route::post('/citizen-services/cancel-status', [CitizenServiceController::class, 'cancelNew']);
-Route::post('/citizen-services/{id}/upload-file', [CitizenServiceController::class, 'uploadFile']);
+Route::post('/citizen-services/upload-file/{id}', [CitizenServiceController::class, 'uploadFile']);
 Route::get('/time-update', [SettingController::class, 'getTimeUpdate']);
 
 
