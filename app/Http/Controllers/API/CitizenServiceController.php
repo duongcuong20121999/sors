@@ -130,6 +130,7 @@ class CitizenServiceController extends Controller
             'message' => 'Service registered successfully',
             'qr_code_url' => asset('storage/' . $fileName),
             'data' => [
+                'id' => $citizenService->id,
                 'name' => $citizen->name,
                 'phone_number' => $citizen->phone_number,
                 'sequence_number' => $citizenService->sequence_number,
