@@ -34,7 +34,8 @@ body.modal-open {
     object-fit: cover;
     display: block;
     position: absolute;
-    top: 0; left: 0;
+    top: 0;
+    left: 0;
     z-index: 0;
 }
 
@@ -58,6 +59,7 @@ body.modal-open {
         height: auto;
         padding: 10px 0;
     }
+
     .header-content-wrapper {
         flex-direction: column;
         justify-content: center;
@@ -65,12 +67,14 @@ body.modal-open {
         gap: 10px;
         padding: 0 15px;
     }
+
     .header-left,
     .header-right {
         width: 100%;
         justify-content: center !important;
         text-align: center;
     }
+
     .header-left {
         margin-bottom: 10px;
     }
@@ -81,6 +85,7 @@ body.modal-open {
         height: auto;
         padding: 10px 0;
     }
+
     .header-content-wrapper {
         flex-direction: column;
         justify-content: center;
@@ -88,12 +93,14 @@ body.modal-open {
         gap: 10px;
         padding: 0 15px;
     }
+
     .header-left,
     .header-right {
         width: 100%;
         justify-content: center !important;
         text-align: center;
     }
+
     .header-left {
         margin-bottom: 10px;
     }
@@ -145,12 +152,13 @@ body.modal-open {
     top: 0;
     width: calc(100% + 160px);
     height: 100%;
-    background-color:#FFFFFFBD;
+    background-color: #FFFFFFBD;
     border-radius: 4px;
     z-index: -1;
 }
 
-.address,.text-nowrap {
+.address,
+.text-nowrap {
     font-family: "Be Vietnam Pro", sans-serif;
     font-weight: 500;
 }
@@ -246,7 +254,7 @@ body.modal-open {
     background-color: white;
 }
 
-.btn-sidebar{
+.btn-sidebar {
     color: #1A1B23;
     width: 25px;
     height: 25px;
@@ -255,7 +263,7 @@ body.modal-open {
     cursor: pointer;
 }
 
-.btn-sidebar.active{
+.btn-sidebar.active {
     background-color: #28CD56;
     color: white;
 }
@@ -303,7 +311,7 @@ input[type="checkbox"] {
 }
 
 
-.main-screen{
+.main-screen {
     display: none;
     opacity: 0;
     transition: opacity 0.3s ease-in-out;
@@ -326,7 +334,8 @@ input[type="checkbox"] {
 }
 
 
-.choose-status,.choose-service {
+.choose-status,
+.choose-service {
     border: 1px solid #DBD6D6;
     border-radius: 5px;
     background-color: #FFFFFF;
@@ -336,9 +345,10 @@ input[type="checkbox"] {
     height: 38px;
 }
 
-.choose-status, .choose-service label {
+.choose-status,
+.choose-service label {
     /* margin-left: 10px; */
-    font-family: "Be VietNam Pro",sans-serif;
+    font-family: "Be VietNam Pro", sans-serif;
     font-size: 15px;
     color: #1A1B23;
 }
@@ -359,11 +369,12 @@ input[type="checkbox"] {
 }
 
 
-.choose-status .dropdown-item1.active { 
+.choose-status .dropdown-item1.active {
     background-color: #e6f7ff !important;
 }
+
 .choose-status .dropdown-item1:hover {
-    background-color: #F8F9FA ;
+    background-color: #F8F9FA;
 }
 
 #status-dropdown-list::-webkit-scrollbar {
@@ -382,7 +393,7 @@ input[type="checkbox"] {
 
 #status-dropdown-list::-webkit-scrollbar-thumb:hover {
     background-color: #888;
-    cursor: pointer;
+    cursor: pointer;
 }
 
 #selected-service {
@@ -393,7 +404,7 @@ input[type="checkbox"] {
     text-overflow: ellipsis;
     padding: 5px 10px;
     line-height: 24px;
-    font-family: "Be VietNam Pro",sans-serif;
+    font-family: "Be VietNam Pro", sans-serif;
     font-weight: 500;
     font-size: 15px;
     color: #1A1B23;
@@ -447,7 +458,7 @@ input[type="checkbox"] {
     max-width: 290px;
 }
 
-.search input{
+.search input {
     padding: 1rem 4rem 1rem 1rem;
 }
 
@@ -501,14 +512,14 @@ input[type="checkbox"] {
 }
 
 .name {
-    font-family: "Be VietNam Pro",sans-serif;
+    font-family: "Be VietNam Pro", sans-serif;
     font-weight: 500;
     font-size: 16px;
     color: #1A1B23;
 }
 
 .location {
-    font-family: "Be VietNam Pro",sans-serif;
+    font-family: "Be VietNam Pro", sans-serif;
     font-weight: 500;
     font-size: 11px;
     color: #1A1B23;
@@ -526,8 +537,8 @@ input[type="checkbox"] {
 }
 
 .service-info p,
-.service-info span{
-    font-family: "Be VietNam Pro",sans-serif;
+.service-info span {
+    font-family: "Be VietNam Pro", sans-serif;
     font-weight: 500;
     font-size: 16px;
     color: #1A1B23;
@@ -589,12 +600,13 @@ input[type="checkbox"] {
 .service-news textarea::-webkit-scrollbar {
     width: 6px;
 }
+
 .service-news textarea::-webkit-scrollbar-thumb {
     background-color: #ccc;
     border-radius: 10px;
 }
 
-.select-image .choose-image-btn{
+.select-image .choose-image-btn {
     border-radius: 10px;
     width: 140px;
     height: 34px;
@@ -638,8 +650,15 @@ input[type="checkbox"] {
     cursor: pointer;
 }
 
-.custom-btn-1, .custom-btn-3, .custom-btn-4 { background: linear-gradient(45deg,#4DD969,#28CD56);}
-.custom-btn-2 { background: linear-gradient(45deg,#418FF5,#1562F1);}
+.custom-btn-1,
+.custom-btn-3,
+.custom-btn-4 {
+    background: linear-gradient(45deg, #4DD969, #28CD56);
+}
+
+.custom-btn-2 {
+    background: linear-gradient(45deg, #418FF5, #1562F1);
+}
 
 .container-service-configuration {
     display: none;
@@ -722,7 +741,7 @@ input[type="checkbox"] {
     align-items: center;
     justify-content: center;
     text-align: center;
-    font-family: "Be VietNam Pro",sans-serif;
+    font-family: "Be VietNam Pro", sans-serif;
     font-weight: 500;
     color: #4F4F4F;
 }
@@ -962,7 +981,7 @@ input[type="checkbox"] {
     margin-left: 15px;
 }
 
-.box-service + .box-service {
+.box-service+.box-service {
     margin-top: 15px;
 }
 
@@ -996,7 +1015,7 @@ input[type="checkbox"] {
     transition: all 0.3s ease;
 } */
 
-.btn-add{
+.btn-add {
     display: inline-block;
     padding: 8px 20px;
     background: linear-gradient(45deg, #418FF5, #1562F1);
@@ -1272,7 +1291,7 @@ a.btn-add:hover {
     bottom: 100% !important;
     margin-bottom: 0.125rem !important;
     min-width: 250px;
-    transform: translate(0,0) !important;
+    transform: translate(0, 0) !important;
 }
 
 .choose-news label {
@@ -1327,14 +1346,15 @@ a.btn-add:hover {
     cursor: pointer;
 }
 
-.ql-editor{
+.ql-editor {
     font-family: "Be VietNam pro", sans-serif;
     font-weight: 500;
     font-size: 15px;
     color: #1A1B23;
 }
 
-.modal-body label, .modal-body input {
+.modal-body label,
+.modal-body input {
     font-family: "Be VietNam pro", sans-serif;
     font-size: 15px;
     color: #1A1B23;
@@ -1427,8 +1447,7 @@ a.btn-add:hover {
 
 
 
-.box-service.selected
-{
+.box-service.selected {
     background-color: #f3f3f3;
     transition: background-color 0.3s ease;
 }
@@ -1488,7 +1507,7 @@ a.btn-add:hover {
     bottom: auto !important;
     margin-bottom: 0.125rem !important;
     min-width: 250px;
-    transform: translate(0,0) !important;
+    transform: translate(0, 0) !important;
 }
 
 .user-log {
@@ -1525,7 +1544,7 @@ a.btn-add:hover {
     bottom: 100% !important;
     margin-bottom: 0.125rem !important;
     min-width: 250px;
-    transform: translate(0,0) !important;
+    transform: translate(0, 0) !important;
 }
 
 #footer-selected-news {
@@ -1690,6 +1709,7 @@ a.btn-add:hover {
     cursor: pointer;
     border: 1px solid #DBD6D6;
 }
+
 .content-checkbox label {
     color: #4F4F4F;
 }
@@ -1759,10 +1779,10 @@ a.btn-add:hover {
 }
 
 .checkbox-wrapper {
-  width: 48px;
-  height: 48px;
-  padding: 0;
-  cursor: pointer;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    cursor: pointer;
 }
 
 .news-checkbox,
@@ -1860,6 +1880,7 @@ a.btn-add:hover {
     height: auto;
     cursor: pointer;
 }
+
 .custom-modal {
     width: 90%;
     max-width: 913px;
@@ -1891,7 +1912,7 @@ a.btn-add:hover {
     gap: 1rem;
 }
 
-.note-footer  {
+.note-footer {
     font-family: "Be Vietnam Pro", sans-serif;
     font-weight: 400;
     font-size: 12px;
@@ -1949,9 +1970,11 @@ a.btn-add:hover {
     white-space: pre-wrap;
     word-break: break-word;
 }
+
 #detail::-webkit-scrollbar {
     width: 6px;
 }
+
 #detail::-webkit-scrollbar-thumb {
     background-color: #c1c1c1;
     border-radius: 3px;
@@ -1979,33 +2002,37 @@ a.btn-add:hover {
 .modal-content {
     border: 1px solid #DBD6D6 !important;
 }
+
 .modal-content p {
     margin-bottom: 0 !important;
 }
+
 .modal-header {
     background-color: #EEEEEE;
 }
+
 .modal-title {
-    font-family: "Be VietNam pro",sans-serif;
+    font-family: "Be VietNam pro", sans-serif;
     color: #000000;
     font-size: 20px;
     font-weight: 500;
 }
 
 .modal-body label {
-    font-family: "Be VietNam pro",sans-serif;
+    font-family: "Be VietNam pro", sans-serif;
     font-weight: 500;
     font-size: 15px;
     color: #1A1B23;
 }
 
 #citizenAddress {
-    font-family: "Be VietNam pro",sans-serif;
+    font-family: "Be VietNam pro", sans-serif;
     border: 1px solid #EEEEEE;
     border-radius: 5px;
     font-size: 15px;
     color: #1A1B23;
 }
+
 input[type="checkbox"] {
     cursor: pointer;
 }
@@ -2028,17 +2055,16 @@ input[type="checkbox"] {
     font-weight: 500;
 }
 
-.note-footer p{
+.note-footer p {
     color: #1A1B23;
-    font-family: "Be VietNam pro",sans-serif;
+    font-family: "Be VietNam pro", sans-serif;
     font-weight: 400;
     font-size: 10px;
 }
 
 .modal-footer button,
-.modal-footer a
-{
-    font-family: "Be VietNam pro",sans-serif;
+.modal-footer a {
+    font-family: "Be VietNam pro", sans-serif;
     font-weight: 500;
     font-size: 12px;
     color: #FFFFFF;
@@ -2057,7 +2083,7 @@ input[type="checkbox"] {
 }
 
 .confirm-modal .modal-title {
-    font-family: "Be VietNam pro",sans-serif;
+    font-family: "Be VietNam pro", sans-serif;
     color: #000000;
     font-size: 20px;
     font-weight: 400;
@@ -2065,7 +2091,7 @@ input[type="checkbox"] {
 
 .confirm-modal .modal-body span,
 .confirm-modal .modal-body p {
-    font-family: "Be VietNam pro",sans-serif;
+    font-family: "Be VietNam pro", sans-serif;
     font-weight: 400;
     font-size: 20px;
     color: #000000;
@@ -2076,8 +2102,7 @@ input[type="checkbox"] {
 }
 
 .confirm-modal .no-confirm,
-.confirm-modal .yes-confirm
-{
+.confirm-modal .yes-confirm {
     border: none;
     width: 85px;
     height: 35px;
@@ -2089,10 +2114,11 @@ input[type="checkbox"] {
 }
 
 .confirm-modal .no-confirm {
-    background: linear-gradient( #85A5CD 0%, #4E6AA0 100%);
+    background: linear-gradient(#85A5CD 0%, #4E6AA0 100%);
 }
+
 .confirm-modal .yes-confirm {
-    background: linear-gradient( #4DD969 0%, #28CD56 100%);
+    background: linear-gradient(#4DD969 0%, #28CD56 100%);
 }
 
 
@@ -2103,6 +2129,7 @@ input[type="checkbox"] {
 .reviewing {
     color: #747775;
 }
+
 .number-service.inprogress {
     color: #1450E8;
 }
@@ -2290,6 +2317,7 @@ input[type="checkbox"] {
     color: #1A1B23;
     font-weight: 400;
 }
+
 .detail-content:hover {
     text-decoration: underline;
     color: #3FD462;
@@ -2410,10 +2438,10 @@ input[type="checkbox"] {
     color: #1A1B23;
 }
 
-.datepicker table ,
+.datepicker table,
 #datepicker {
     margin: 0 auto !important;
-    font-family: "Be VietNam Pro",sans-serif !important;
+    font-family: "Be VietNam Pro", sans-serif !important;
     font-weight: 500 !important;
     font-size: 15px !important;
 }
@@ -2431,7 +2459,7 @@ body.modal-open {
     padding-right: 0 !important;
 }
 
-.main-screen.show{
+.main-screen.show {
     display: block;
     opacity: 1;
 }
@@ -2460,7 +2488,8 @@ body.modal-open {
 }
 
 
-.choose-status, .choose-service {
+.choose-status,
+.choose-service {
     cursor: pointer;
     border: 1px solid #DBD6D6;
     border-radius: 5px;
@@ -2471,7 +2500,8 @@ body.modal-open {
     height: 38px;
 }
 
-.choose-status, .choose-service .dropdown {
+.choose-status,
+.choose-service .dropdown {
     position: relative;
 }
 
@@ -2482,28 +2512,30 @@ body.modal-open {
     top: 100% !important;
     margin-top: 0 !important;
     min-width: 366px;
-    transform: translate(0,0) !important;
+    transform: translate(0, 0) !important;
 }
-.choose-status{
+
+.choose-status {
     /* position: absolute !important; */
     right: 0 !important;
     left: auto !important;
     top: 100% !important;
     margin-top: 0 !important;
     min-width: 366px;
-    transform: translate(0,0) !important;
-   
+    transform: translate(0, 0) !important;
+
 }
 
- .choose-service label {
+.choose-service label {
     /* margin-left: 10px; */
-    font-family: "Be VietNam Pro",sans-serif;
+    font-family: "Be VietNam Pro", sans-serif;
     font-size: 15px;
     color: #1A1B23;
 }
 
 
-#selected-status,#selected-service {
+#selected-status,
+#selected-service {
     width: 200px;
     display: inline-block;
     white-space: nowrap;
@@ -2511,7 +2543,7 @@ body.modal-open {
     text-overflow: ellipsis;
     padding: 5px 10px;
     line-height: 24px;
-    font-family: "Be VietNam Pro",sans-serif;
+    font-family: "Be VietNam Pro", sans-serif;
     font-weight: 500;
     font-size: 15px;
     color: #1A1B23;
@@ -2618,7 +2650,7 @@ body.modal-open {
     align-items: center;
     padding: 15px;
     background-color: #FFFFFF;
-    border-bottom:  1px solid #DBD6D6;
+    border-bottom: 1px solid #DBD6D6;
 }
 
 .display-section img {
@@ -2628,14 +2660,14 @@ body.modal-open {
 }
 
 .name {
-    font-family: "Be VietNam Pro",sans-serif;
+    font-family: "Be VietNam Pro", sans-serif;
     font-weight: 500;
     font-size: 16px;
     color: #1A1B23;
 }
 
 .location {
-    font-family: "Be VietNam Pro",sans-serif;
+    font-family: "Be VietNam Pro", sans-serif;
     font-weight: 400;
     font-size: 11px;
     color: #1A1B23;
@@ -2653,19 +2685,23 @@ body.modal-open {
 }
 
 .number-service {
-    font-family: "Be VietNam Pro",sans-serif;
+    font-family: "Be VietNam Pro", sans-serif;
     font-weight: 500;
     font-size: 40px;
 }
+
 .number-service.new {
     color: #1A1B23;
 }
+
 .number-service.reviewing {
     color: #747775;
 }
+
 .number-service.inprogress {
     color: #1450E8;
 }
+
 .number-service.done {
     color: #1FA144;
 }
@@ -2674,7 +2710,7 @@ body.modal-open {
     gap: 10px;
 }
 
-.custom-btn-1{
+.custom-btn-1 {
     width: 95px;
     height: 35px;
     border-radius: 20px;
@@ -2699,11 +2735,11 @@ body.modal-open {
 }
 
 .custom-btn-1 {
-    background: linear-gradient(45deg,#4DD969,#28CD56);
+    background: linear-gradient(45deg, #4DD969, #28CD56);
 }
 
 .custom-btn-2 {
-    background: linear-gradient(45deg,#418FF5,#1562F1);
+    background: linear-gradient(45deg, #418FF5, #1562F1);
 }
 
 .service-quill .ql-editor {
@@ -2719,13 +2755,15 @@ body.modal-open {
 }
 
 .quill-editor p {
-    font-family: "Be VietNam pro",sans-serif;
+    font-family: "Be VietNam pro", sans-serif;
     font-size: 15px;
     color: #1A1B23;
 }
 
-.volume-icon{
-    color: #ffa500; font-size: 35px; margin: 10px 0 0 20px;
+.volume-icon {
+    color: #ffa500;
+    font-size: 35px;
+    margin: 10px 0 0 20px;
 }
 
 
@@ -2747,6 +2785,7 @@ body.modal-open {
 .ql-snow {
     .ql-picker {
         &.ql-size {
+
             .ql-picker-label,
             .ql-picker-item {
                 &::before {
@@ -2791,14 +2830,16 @@ body.modal-open {
     color: #1FA144;
 }
 
-.status.closed{
+.status.closed {
     font-family: "Be VietNam Pro", sans-serif;
     font-weight: 500;
     font-size: 15px;
     color: #1FA144;
 }
 
-.status.cancel, .rejected, .cancelled {
+.status.cancel,
+.rejected,
+.cancelled {
     font-family: "Be VietNam Pro", sans-serif;
     font-weight: 500;
     font-size: 15px;
@@ -2819,10 +2860,11 @@ body.modal-open {
 .input-group-text {
     cursor: pointer;
 }
-.datepicker table ,
+
+.datepicker table,
 #datepicker {
     margin: 0 auto !important;
-    font-family: "Be VietNam Pro",sans-serif !important;
+    font-family: "Be VietNam Pro", sans-serif !important;
     font-weight: 500 !important;
     font-size: 15px !important;
 }
@@ -2856,10 +2898,10 @@ body.modal-open {
     color: white;
 }
 
-.datepicker table ,
+.datepicker table,
 #datepicker {
     margin: 0 auto !important;
-    font-family: "Be VietNam Pro",sans-serif !important;
+    font-family: "Be VietNam Pro", sans-serif !important;
     font-weight: 500 !important;
     font-size: 15px !important;
 }
@@ -2873,13 +2915,13 @@ body.modal-open {
     max-height: none;
 }
 
-.system-parameter-configuration{
+.system-parameter-configuration {
     transition: opacity 0.3s ease-in-out;
     border: 1px solid #DBD6D6;
     border-radius: 5px;
 }
 
-.system-parameter-configuration.show{
+.system-parameter-configuration.show {
     display: block;
     opacity: 1;
 }
@@ -2888,6 +2930,7 @@ body.modal-open {
     background-color: #f4f4f4;
     border-bottom: 1px solid #DBD6D6;
 }
+
 .header-system-parameter-configuration p {
     font-family: "Be Vietnam Pro", sans-serif;
     font-size: 32px;
@@ -2970,12 +3013,12 @@ body.modal-open {
 }
 
 .quill-qr:focus {
-    border-color:gray !important;
+    border-color: gray !important;
     box-shadow: none;
 }
 
 .quill-qr p {
-    font-family: "Be VietNam pro",sans-serif;
+    font-family: "Be VietNam pro", sans-serif;
     font-size: 15px;
     color: #1A1B23;
 }
@@ -2994,14 +3037,15 @@ body.modal-open {
 .ql-editor::-webkit-scrollbar {
     width: 6px;
 }
+
 .ql-editor::-webkit-scrollbar-thumb {
     background-color: #ccc;
     border-radius: 10px;
 }
 
 .display-qr img {
-    width: 270px ;
-    height: 270px ;
+    width: 270px;
+    height: 270px;
     object-fit: contain;
 }
 
@@ -3015,6 +3059,7 @@ body.modal-open {
 .system-button {
     width: 100%;
 }
+
 .qr-button {
     display: inline-block;
     width: 86px;
@@ -3033,6 +3078,7 @@ body.modal-open {
 .system-button button {
     background: linear-gradient(#4DD969, #28CD56);
 }
+
 .system-button a {
     background: linear-gradient(#418FF5, #1562F1);
 }
@@ -3048,4 +3094,18 @@ body.modal-open {
     font-size: 11px;
     font-family: "Be Vietnam Pro", sans-serif;
     font-weight: 500;
+}
+
+.attached-file-item {
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+
+}
+
+.attached-files .attached-file-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0; 
+    padding-bottom: 0;
+ 
 }

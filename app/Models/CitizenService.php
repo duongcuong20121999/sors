@@ -17,4 +17,9 @@ class CitizenService extends Model {
         return $this->belongsTo(Service::class);
     }
 
+    public function files()
+{
+    return $this->hasMany(CitizenServiceFile::class);
+}
+
 }

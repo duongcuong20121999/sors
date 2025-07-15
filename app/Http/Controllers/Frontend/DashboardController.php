@@ -8,6 +8,7 @@ use App\Models\Service;
 use Illuminate\Http\Request;
 
 use App\Enums\Status;
+use Illuminate\Support\Facades\Storage;
 
 class DashboardController extends Controller
 {
@@ -108,17 +109,11 @@ class DashboardController extends Controller
      */
     public function edit(string $id)
     {
-        $cs = CitizenService::with(['citizen', 'service'])->find($id);
+        $cs = CitizenService::with(['citizen', 'service', 'files'])->find($id);
 
         if (!$cs) {
             return response()->json(['error' => 'Not found'], 404);
         }
-
-        // if ($cs->status == 0) {
-        //     $cs->update(['status' => 1]);
-        // }
-
-
 
         return response()->json([
             'id' => $cs->id,
@@ -126,13 +121,23 @@ class DashboardController extends Controller
             'address' => $cs->citizen->address,
             'phone' => $cs->citizen->phone_number,
             'service' => $cs->service->name,
-            'phone' => $cs->citizen->phone_number,
             'identity_number' => $cs->citizen->identity_number,
             'citizen_note' => $cs->citizen_note,
             'created_date' => $cs->created_date,
             'sequence_number' => $cs->sequence_number,
-            'status' => $cs->status
+            'status' => $cs->status,
+            'files' => $cs->files->map(function ($file) {
+                $disk = Storage::disk('public');
+                $filePath = $file->file_path;
 
+                return [
+                    'title' => $file->title,
+                    'file_path' => asset('storage/' . $filePath),
+                    'size' => $disk->exists($filePath) ? $disk->size($filePath) : 0, // size in bytes
+                    'extension' => pathinfo($filePath, PATHINFO_EXTENSION),
+                    'filename' => basename($filePath),
+                ];
+            }),
         ]);
     }
 
@@ -353,15 +358,16 @@ class DashboardController extends Controller
         CitizenService::whereIn('id', $ids)->update(['status' => 6]);
 
         $citizenServices = CitizenService::with(['citizen', 'service'])
-            ->whereIn('status', [ 
-            Status::New->value,
-            Status::Reviewing->value,
-            Status::InProgress->value,
-            Status::Done->value])
+            ->whereIn('status', [
+                Status::New->value,
+                Status::Reviewing->value,
+                Status::InProgress->value,
+                Status::Done->value
+            ])
             ->orderBy('appointment_date')
             ->get();
 
-            
+
 
         $updatedListHtml = view('partials._citizen_service_list', compact('citizenServices'))->render();
 

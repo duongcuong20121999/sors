@@ -36,7 +36,7 @@
             @elseif ($citizenService->status == 3)
             <button type="button" class="custom-btn-3" data-id="{{ $citizenService->id }}">Đóng hồ sơ</button>
             @elseif ($citizenService->status == 0 || $citizenService->status == 1)
-            <button type="button" class="custom-btn-1" data-id="{{ $citizenService->id }}">Gọi xử lý</button>
+            <button type="button" class="custom-btn-1" data-id="{{ $citizenService->id }}">Cập nhật</button>
             @endif
             <button type="button" class="custom-btn-2" data-id="{{ $citizenService->id }}">Hủy yêu cầu</button>
         </div>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Enums\Status;
 use App\Helpers\GroupStatus;
+use App\Models\CitizenServiceFile;
 use Illuminate\Http\Request;
 use App\Models\Citizen;
 use App\Models\Service;
@@ -52,7 +53,8 @@ class CitizenServiceController extends Controller
             ->whereIn('status', [
                 Status::New->value,
                 Status::Reviewing->value,
-                Status::InProgress->value])
+                Status::InProgress->value
+            ])
             ->first();
 
         if ($existingRegistration) {
@@ -87,7 +89,6 @@ class CitizenServiceController extends Controller
             $minutes = intval(!$service->process_minutes || $service->process_minutes < 0 ? 0 : $service->process_minutes);
             $appointmentDate->addHours($hours)
                 ->addMinutes($minutes);
-    
         } else {
             // If unlimited duration, set to next day
             $appointmentDate->addDay();
@@ -161,10 +162,11 @@ class CitizenServiceController extends Controller
 
         $summary = [
             'created'    => $query->clone()->count(), // Tất cả status
-            'processing'  => $query->clone()->whereIn('status', [ 
-            Status::New->value,
-            Status::Reviewing->value,
-            Status::InProgress->value])->count(),
+            'processing'  => $query->clone()->whereIn('status', [
+                Status::New->value,
+                Status::Reviewing->value,
+                Status::InProgress->value
+            ])->count(),
             'completed'  => $query->clone()->whereIn('status', [
                 Status::Done->value,
                 Status::Closed->value
@@ -179,7 +181,7 @@ class CitizenServiceController extends Controller
     public function getByZaloAndStatus(Request $request)
     {
         $zaloId = $request->input('zalo_id');
-        $statusGroup = $request->input('status_group'); 
+        $statusGroup = $request->input('status_group');
 
         $statusMap = GroupStatus::statusGroups();
 
@@ -292,5 +294,40 @@ class CitizenServiceController extends Controller
         $service->save();
 
         return response()->json(['success' => true, 'message' => 'Cập nhật thành công!']);
+    }
+
+    public function uploadFile($id, Request $request)
+    {
+        $request->validate([
+            'files' => 'required|array|min:1',
+            'files.*.title' => 'required|string|max:255',
+            'files.*.file' => 'required|file|max:10240', // tối đa 10MB
+        ]);
+
+        $citizenService = CitizenService::findOrFail($id);
+
+        $savedFiles = [];
+
+        foreach ($request->input('files') as $index => $inputFile) {
+            $title = $inputFile['title'];
+            $uploadedFile = $request->file("files.$index.file");
+
+            if ($uploadedFile && $uploadedFile->isValid()) {
+                $filePath = $uploadedFile->store('citizen_files', 'public');
+
+                $saved = CitizenServiceFile::create([
+                    'citizen_service_id' => $citizenService->id,
+                    'title' => $title,
+                    'file_path' => $filePath,
+                ]);
+
+                $savedFiles[] = $saved;
+            }
+        }
+
+        return response()->json([
+            'message' => 'Tải lên nhiều file thành công',
+            'data' => $savedFiles
+        ], 201);
     }
 }

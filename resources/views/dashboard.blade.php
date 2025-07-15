@@ -5,7 +5,7 @@
 @section('meta_description', 'Trang quản trị dành cho cán bộ theo dõi, xử lý và giám sát đăng ký dịch vụ.')
 
 @section('content')
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     {{-- <div class="alert alert-danger">{{ session('message') }}</div> --}}
     <div class="main-screen show">
         <div class="header-main-screen d-flex justify-content-end">
@@ -135,21 +135,25 @@
                                     chỉ:</label>
                                 <input type="text" name="address" class="form-control" id="citizenAddress" />
                             </div>
-                            <div class="mb-3">
-                                <label for="processNote" class="form-label">Ghi chú:</label>
-                                <div id="editor-done" class="quill-editor"></div>
-                                <input type="hidden" name="citizen_note" id="citizen_note">
+                            <div class="row mb-3">
+                                <div class="col-md-6"> {{-- Cột cho Ghi chú --}}
+                                    <label for="processNote" class="form-label">Ghi chú:</label>
+                                    <div id="editor-done" class="quill-editor"></div>
+                                    <input type="hidden" name="citizen_note" id="citizen_note">
+                                </div>
+                                <div class="col-md-6"> {{-- Cột cho Tài liệu đính kèm --}}
+                                    <label class="form-label">Tài liệu đính kèm:</label>
+                                    <div class="attached-files">
+                                        {{-- Ví dụ về một file đính kèm, bạn sẽ cần lặp qua danh sách file thực tế --}}
+
+                                        {{-- Thêm các file khác tương tự tại đây --}}
+                                    </div>
+                                </div>
                             </div>
                             <input type="hidden" name="status" class="status" id="status">
 
 
-                            {{-- <div class="form-check d-flex justify-content-end mt-3">
-                                <input class="form-check-input" type="checkbox" id="startProcessing"
-                                    name="start_processing">
-                                <label class="form-check-label ms-2" for="startProcessing">
-                                    Bắt đầu xử lý
-                                </label>
-                            </div> --}}
+
 
                         </div>
 
@@ -551,7 +555,7 @@
             const checkbox = document.getElementById('startProcessing');
 
             if (checkbox) {
-                checkbox.addEventListener('click', function () {
+                checkbox.addEventListener('click', function() {
                     const isChecked = this.checked ? 1 : 0;
 
                     const citizenServiceId = document.getElementById('citizenServiceId')?.value ||
@@ -949,9 +953,9 @@
             });
         }
 
-            getUpdateInterval().then(() => {
-                setInterval(autoReloadCitizenServices, updateInterval);
-            });
+        getUpdateInterval().then(() => {
+            setInterval(autoReloadCitizenServices, updateInterval);
+        });
     </script>
 
 

@@ -166,6 +166,60 @@ document.addEventListener("DOMContentLoaded", function () {
 
 });
 
+function shortenFilename(filename, maxLength = 30) {
+    if (filename.length <= maxLength) return filename;
+
+    const dotIndex = filename.lastIndexOf('.');
+    const name = filename.slice(0, dotIndex);
+    const ext = filename.slice(dotIndex);
+
+    const shortenedName = name.slice(0, maxLength - ext.length - 3); // -3 cho "..."
+    return `${shortenedName}...${ext}`;
+}
+
+function formatFileSize(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+}
+
+function renderAttachedFiles(files) {
+    const attachedFilesContainer = document.querySelector('.attached-files');
+    if (!attachedFilesContainer) return;
+
+    attachedFilesContainer.innerHTML = '';
+
+    files.forEach(file => {
+        const fileSizeMb = formatFileSize(file.size);
+        const fileIcon = file.extension === 'pdf' ? 'doc_file.png' : 'image_file.png';
+
+        const shortenedName = shortenFilename(file.filename, 25); // 25 là số ký tự tối đa
+        console.log('File size:', file.size, ' - Filename:', file.filename);
+        const fileItemHtml = `
+            <div class="d-flex justify-content-between align-items-center mb-2 attached-file-item">
+                <div class="d-flex align-items-center">
+                    <img class="me-2" width="31px" height="31px"
+                        src="/frontend/assets/images/${fileIcon}"
+                        alt="File icon">
+                    <div>
+                        <a href="${file.file_path}" target="_blank" class="file-view-link">
+                            <span>${file.title}</span><br>
+                            <small class="text-muted m-2" title="${file.filename}">${shortenedName}</small></a>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center">
+                    <span class="me-2">${fileSizeMb}</span>
+                    <a href="${file.file_path}" target="_blank" class="text-decoration-none">
+                        <i class="bi bi-download"></i>
+                    </a>
+                </div>
+            </div>
+        `;
+
+        attachedFilesContainer.insertAdjacentHTML('beforeend', fileItemHtml);
+    });
+}
+
 function loadModal() {
     initializeModalEvents(); // Chỉ cần khởi tạo sự kiện
 }
@@ -207,7 +261,7 @@ async function showProcessModal(button) {
         });
 
         const data = await response.json();
-
+        renderAttachedFiles(data.files || []);
         if (data.error) {
             alert('Không tìm thấy dữ liệu');
             return;
@@ -302,6 +356,7 @@ async function showProcessModal(button) {
         const updateForm = document.getElementById('processForm');
         updateForm.action = `${window.location.origin}${basePath}/dashboard/update/citizen-service/${idCitizenService}`;
 
+        
         // Hiển thị modal
         const modalElement = document.getElementById('processModal');
         const processModal = new bootstrap.Modal(modalElement, {
