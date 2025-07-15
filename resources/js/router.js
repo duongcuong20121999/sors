@@ -112,7 +112,7 @@ function initializePageEvents() {
 
 function resetDropdown() {
     const selectedService = document.getElementById("selected-service");
-    
+
     const dropdownMenu = document.getElementById("dropdown-list");
 
     if (selectedService) {
@@ -191,15 +191,18 @@ function renderAttachedFiles(files) {
 
     files.forEach(file => {
         const fileSizeMb = formatFileSize(file.size);
-        const fileIcon = file.extension === 'pdf' ? 'doc_file.png' : 'image_file.png';
-
+        const imageExtensions = ['png', 'jpg', 'jpeg'];
+        const fileIcon = imageExtensions.includes(file.extension.toLowerCase())
+            ? 'image_file.png'
+            : 'doc_file.png';
+        const iconUrl = `${assetBaseUrl}/${fileIcon}`;
         const shortenedName = shortenFilename(file.filename, 25); // 25 là số ký tự tối đa
-        console.log('File size:', file.size, ' - Filename:', file.filename);
+
         const fileItemHtml = `
             <div class="d-flex justify-content-between align-items-center mb-2 attached-file-item">
                 <div class="d-flex align-items-center">
                     <img class="me-2" width="31px" height="31px"
-                        src="/frontend/assets/images/${fileIcon}"
+                        src="${iconUrl}"
                         alt="File icon">
                     <div>
                         <a href="${file.file_path}" target="_blank" class="file-view-link">
@@ -239,7 +242,7 @@ async function showProcessModal(button) {
 
     try {
         const basePath = window.location.pathname.split('/dashboard')[0];
-    
+
         const serviceCodeElement = document.querySelector('select[name="service_code"]');
         const citizenNameElement = document.querySelector('input[name="citizen_name"]');
 
@@ -277,17 +280,17 @@ async function showProcessModal(button) {
 
         //update status to reviewed to support reader
         fetch(`${basePath}/dashboard/citizen-service/update-status?service_code=${serviceCode}&citizen_name=${citizenName}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector(
-                        'meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({
-                    id: citizenServiceId,
-                    status: 1
-                })
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector(
+                    'meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({
+                id: citizenServiceId,
+                status: 1
             })
+        })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
@@ -356,7 +359,7 @@ async function showProcessModal(button) {
         const updateForm = document.getElementById('processForm');
         updateForm.action = `${window.location.origin}${basePath}/dashboard/update/citizen-service/${idCitizenService}`;
 
-        
+
         // Hiển thị modal
         const modalElement = document.getElementById('processModal');
         const processModal = new bootstrap.Modal(modalElement, {

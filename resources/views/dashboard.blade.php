@@ -392,6 +392,8 @@
 
 
     <script>
+
+        const assetBaseUrl = "{{ asset('frontend/assets/images') }}";
         let allStatusSelected = false;
 
         $(document).on('click', '.status-option', function(e) {
