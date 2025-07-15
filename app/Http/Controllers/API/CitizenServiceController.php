@@ -125,6 +125,7 @@ class CitizenServiceController extends Controller
         $citizenService->save();
 
         return response()->json([
+            'success' => true,
             'message' => 'Service registered successfully',
             'qr_code_url' => asset('storage/' . $fileName),
             'data' => [
