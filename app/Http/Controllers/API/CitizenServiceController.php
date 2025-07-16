@@ -47,37 +47,37 @@ class CitizenServiceController extends Controller
         $endOfDay = now('Asia/Ho_Chi_Minh')->endOfDay()->timezone('UTC');
 
         // Check 1: Citizen đã đăng ký dịch vụ này hôm nay và chưa hoàn thành/chưa đóng
-        $existingRegistration = CitizenService::where('citizen_id', $citizen->id)
-            ->where('service_id', $service->id)
-            ->whereBetween('created_at', [$startOfDay, $endOfDay])
-            ->whereIn('status', [
-                Status::New->value,
-                Status::Reviewing->value,
-                Status::InProgress->value
-            ])
-            ->first();
+        // $existingRegistration = CitizenService::where('citizen_id', $citizen->id)
+        //     ->where('service_id', $service->id)
+        //     ->whereBetween('created_at', [$startOfDay, $endOfDay])
+        //     ->whereIn('status', [
+        //         Status::New->value,
+        //         Status::Reviewing->value,
+        //         Status::InProgress->value
+        //     ])
+        //     ->first();
 
-        if ($existingRegistration) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Hệ thống ghi nhận quý công dân đã có một lượt đăng ký dịch vụ này đang được xử lý trong ngày hôm nay. Vui lòng chờ hoàn tất hoặc đăng ký lại vào ngày hôm sau!',
-                'data' => null
-            ], 200);
-        }
+        // if ($existingRegistration) {
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => 'Hệ thống ghi nhận quý công dân đã có một lượt đăng ký dịch vụ này đang được xử lý trong ngày hôm nay. Vui lòng chờ hoàn tất hoặc đăng ký lại vào ngày hôm sau!',
+        //         'data' => null
+        //     ], 200);
+        // }
 
-        // Check 2: Citizen đã đăng ký bao nhiêu dịch vụ khác nhau hôm nay
-        $countServicesToday = CitizenService::where('citizen_id', $citizen->id)
-            ->whereBetween('created_at', [$startOfDay, $endOfDay])
-            ->distinct('service_id')
-            ->count('service_id');
+        // // Check 2: Citizen đã đăng ký bao nhiêu dịch vụ khác nhau hôm nay
+        // $countServicesToday = CitizenService::where('citizen_id', $citizen->id)
+        //     ->whereBetween('created_at', [$startOfDay, $endOfDay])
+        //     ->distinct('service_id')
+        //     ->count('service_id');
 
-        if ($countServicesToday >= 3) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Không thể thực hiện đăng ký. Theo quy định, mỗi công dân chỉ được phép đăng ký tối đa 03 dịch vụ mỗi ngày!',
-                'data' => null
-            ], 200);
-        }
+        // if ($countServicesToday >= 3) {
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => 'Không thể thực hiện đăng ký. Theo quy định, mỗi công dân chỉ được phép đăng ký tối đa 03 dịch vụ mỗi ngày!',
+        //         'data' => null
+        //     ], 200);
+        // }
 
         // Calculate appointment date based on service process time
         $now = now();
