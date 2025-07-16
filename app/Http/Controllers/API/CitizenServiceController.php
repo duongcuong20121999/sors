@@ -314,7 +314,8 @@ class CitizenServiceController extends Controller
             $uploadedFile = $request->file("files.$index.file");
 
             if ($uploadedFile && $uploadedFile->isValid()) {
-                $filePath = $uploadedFile->store('citizen_files', 'public');
+                $originalName = $uploadedFile->getClientOriginalName();
+                $filePath = $uploadedFile->storeAs('citizen_files', $originalName, 'public');
 
                 $saved = CitizenServiceFile::create([
                     'citizen_service_id' => $citizenService->id,
@@ -327,8 +328,37 @@ class CitizenServiceController extends Controller
         }
 
         return response()->json([
-            'message' => 'Tải lên nhiều file thành công',
+            'success' => true,
+            'message' => 'Tải file thành công',
             'data' => $savedFiles
         ], 201);
+    }
+
+    public function getFiles($id)
+    {
+        $cs = CitizenService::with('files')->find($id);
+
+        if (!$cs) {
+            return response()->json(['success' => false, 'error' => 'Không tìm thấy bản ghi.'], 404);
+        }
+
+        $files = $cs->files->map(function ($file) {
+            return [
+                'id' => $file->id,
+                'title' => $file->title,
+                'filename' => basename($file->file_path),
+                'file_path' => asset('storage/' . $file->file_path),
+                'size' => Storage::disk('public')->exists($file->file_path)
+                    ? Storage::disk('public')->size($file->file_path)
+                    : 0,
+                'extension' => pathinfo($file->file_path, PATHINFO_EXTENSION),
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'citizen_service_id' => $cs->id,
+            'files' => $files
+        ]);
     }
 }

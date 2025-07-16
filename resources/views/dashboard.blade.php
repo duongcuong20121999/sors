@@ -212,10 +212,19 @@
                                 <input type="text" name="address" class="form-control ps-3 py-2"
                                     id="citizenAddress_done" />
                             </div>
-                            <div class="mb-3">
-                                <label for="processNote" class="form-label">Ghi chú:</label>
-                                <div id="editor-complete" class="quill-editor"></div>
-                                <input type="hidden" name="citizen_note" id="citizen_note_done">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="processNote" class="form-label">Ghi chú:</label>
+                                    <div id="editor-complete" class="quill-editor"></div>
+                                    <input type="hidden" name="citizen_note" id="citizen_note_done">
+
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Tài liệu đính kèm:</label>
+                                    <div class="attached-files">
+
+                                    </div>
+                                </div>
                             </div>
                             <div class="d-flex justify-content-end align-items-center gap-2">
                                 <input id="confirmed-completion" style="width: 25px; height: 25px;" type="checkbox"
@@ -263,11 +272,21 @@
                                 <input type="text" name="address" class="form-control ps-3 py-2"
                                     id="citizenAddress_close" />
                             </div>
-                            <div class="mb-3">
-                                <label for="processNote" class="form-label">Ghi chú:</label>
-                                <div id="editor-close" class="quill-editor"></div>
-                                <input type="hidden" name="citizen_note" id="citizen_note_close">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="processNote" class="form-label">Ghi chú:</label>
+                                    <div id="editor-close" class="quill-editor"></div>
+                                    <input type="hidden" name="citizen_note" id="citizen_note_close">
+
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Tài liệu đính kèm:</label>
+                                    <div class="attached-files">
+
+                                    </div>
+                                </div>
                             </div>
+
                             <div class="d-flex justify-content-end align-items-center gap-2">
                                 <input id="confirmed-close" style="width: 25px; height: 25px;" type="checkbox"
                                     name="cf_cancel">
@@ -392,7 +411,6 @@
 
 
     <script>
-
         const assetBaseUrl = "{{ asset('frontend/assets/images') }}";
         let allStatusSelected = false;
 

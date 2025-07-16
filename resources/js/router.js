@@ -184,42 +184,48 @@ function formatFileSize(bytes) {
 }
 
 function renderAttachedFiles(files) {
-    const attachedFilesContainer = document.querySelector('.attached-files');
-    if (!attachedFilesContainer) return;
+    const attachedFilesContainers = document.querySelectorAll('.attached-files');
+    if (!attachedFilesContainers || attachedFilesContainers.length === 0) return;
 
-    attachedFilesContainer.innerHTML = '';
+    const imageExtensions = ['png', 'jpg', 'jpeg'];
 
-    files.forEach(file => {
-        const fileSizeMb = formatFileSize(file.size);
-        const imageExtensions = ['png', 'jpg', 'jpeg'];
-        const fileIcon = imageExtensions.includes(file.extension.toLowerCase())
-            ? 'image_file.png'
-            : 'doc_file.png';
-        const iconUrl = `${assetBaseUrl}/${fileIcon}`;
-        const shortenedName = shortenFilename(file.filename, 25); // 25 là số ký tự tối đa
+    attachedFilesContainers.forEach(container => {
+        container.innerHTML = ''; // Xoá nội dung cũ
 
-        const fileItemHtml = `
-            <div class="d-flex justify-content-between align-items-center mb-2 attached-file-item">
-                <div class="d-flex align-items-center">
-                    <img class="me-2" width="31px" height="31px"
-                        src="${iconUrl}"
-                        alt="File icon">
-                    <div>
-                        <a href="${file.file_path}" target="_blank" class="file-view-link">
-                            <span>${file.title}</span><br>
-                            <small class="text-muted m-2" title="${file.filename}">${shortenedName}</small></a>
+        files.forEach(file => {
+            const fileSizeMb = formatFileSize(file.size);
+            const fileIcon = imageExtensions.includes(file.extension?.toLowerCase())
+                ? 'image_file.png'
+                : 'doc_file.png';
+
+            const iconUrl = `${assetBaseUrl}/${fileIcon}`;
+            const title = shortenFilename(file.title, 25);
+            const shortenedName = shortenFilename(file.filename, 25);
+
+            const fileItemHtml = `
+                <div class="d-flex justify-content-between align-items-center mb-2 attached-file-item">
+                    <div class="d-flex align-items-center">
+                        <img class="me-2" width="31px" height="31px"
+                            src="${iconUrl}"
+                            alt="File icon">
+                        <div>
+                            <a href="${file.file_path}" target="_blank" class="file-view-link">
+                                <span>${title}</span><br>
+                                <small class="text-muted m-2" title="${file.filename}">${shortenedName}</small>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <span class="me-2">${fileSizeMb}</span>
+                        <a href="${file.file_path}" download target="_blank" class="text-decoration-none">
+                            <i class="bi bi-download"></i>
+                        </a>
                     </div>
                 </div>
-                <div class="d-flex align-items-center">
-                    <span class="me-2">${fileSizeMb}</span>
-                    <a href="${file.file_path}" target="_blank" class="text-decoration-none">
-                        <i class="bi bi-download"></i>
-                    </a>
-                </div>
-            </div>
-        `;
+            `;
 
-        attachedFilesContainer.insertAdjacentHTML('beforeend', fileItemHtml);
+            container.insertAdjacentHTML('beforeend', fileItemHtml);
+        });
     });
 }
 
@@ -398,6 +404,8 @@ async function showDoneModal(button) {
         const response = await fetch(`${basePath}/dashboard/detail/citizen-service/${idCitizenService}`);
         const data = await response.json();
 
+        renderAttachedFiles(data.files || []);
+
         if (data.error) {
             alert('Không tìm thấy dữ liệu');
             return;
@@ -459,7 +467,7 @@ async function showCloseModal(button) {
         const basePath = window.location.pathname.split('/dashboard')[0];
         const response = await fetch(`${basePath}/dashboard/detail/citizen-service/${idCitizenService}`);
         const data = await response.json();
-
+        renderAttachedFiles(data.files || []);
         if (data.error) {
             alert('Không tìm thấy dữ liệu');
             return;
