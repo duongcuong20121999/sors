@@ -11,27 +11,39 @@
 </head>
 
 <style>
-        .kiosk-row {
-            display: flex;
-            align-items: flex-start;
-            gap: 16px;
-        }
+    .kiosk-row {
+        display: flex;
+        align-items: flex-start; 
+        justify-content: flex-start; 
+        gap: 16px;
+        margin: 0 30px; 
 
-    
-        .kiosk-row ul {
-            padding-left: 20px;
-            list-style-type: disc;
-            margin: 0;
-        }
+    }
 
-        .kiosk-row li {
-            margin-bottom: 4px;
-        }
-        
-        p {
-            margin: 0;
-        }
-    </style>
+    .kiosk-image-container {
+        flex-shrink: 0; 
+
+    }
+
+    .kiosk-content-container {
+        flex-grow: 1; 
+
+    }
+
+    .kiosk-row ul {
+        padding-left: 20px;
+        list-style-type: disc;
+        margin: 0;
+    }
+
+    .kiosk-row li {
+        margin-bottom: 4px;
+    }
+
+    p {
+        margin: 0;
+    }
+</style>
 
 <?php $setting = App\Models\Setting::first(); ?>
 
@@ -74,7 +86,7 @@
             </div>
         </div>
     </header>
-    
+
     <main>
         <div class="display-kiosk mt-5 mx-4 ">
             <div class="container-fluid">
@@ -85,12 +97,15 @@
                                 <div class="kiosk ">
                                     <input type="hidden" class="id-service-kiosk" value="{{ $service->id }}">
                                     <div class="kiosk-wrapper kiosk-row my-4" style="margin: 0 30px;">
-                                        <div class="m-auto">
+                        
+                                        <div class="kiosk-image-container mt-3">
                                             <img src="{{ asset($service->icon) }}" alt="{{ $service->name }}">
                                         </div>
-                                        
-                                        <div style="margin-top: 20px;">
-                                            <p class="m-0 fw-bold">{!! $service->mission !!}</p>
+
+                                        <div class="kiosk-content-container">
+                                            @if (!empty($service->mission))
+                                                <p class="m-0 fw-bold">{!! $service->mission !!}</p>
+                                            @endif
                                         </div>
                                     </div>
 

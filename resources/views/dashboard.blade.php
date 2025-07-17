@@ -6,6 +6,8 @@
 
 @section('content')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+
     {{-- <div class="alert alert-danger">{{ session('message') }}</div> --}}
     <div class="main-screen show">
         <div class="header-main-screen d-flex justify-content-end">
@@ -21,12 +23,12 @@
                 </a>
             </div>
             <!-- Chọn trạng thái -->
-            <div class="choose-status d-flex align-items-center" style="margin-right: 20px">
+            <div class="choose-status d-flex align-items-center" style="margin-right: 20px" id="choose-status">
                 <label class="m-2">Chọn trạng thái:</label>
                 <p id="selected-status" class="mb-0"></p>
 
                 <div class="dropdown ms-2">
-                    <button class="btn btn-outline-secondary p-2 d-flex align-items-center" type="button"
+                    <button class="btn btn-outline-secondary dropdown-toggle p-2 d-flex align-items-center" type="button"
                         id="statusDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">
                         <ion-icon name="chevron-down-outline" class="ms-2"></ion-icon>
                     </button>
@@ -136,13 +138,15 @@
                                 <input type="text" name="address" class="form-control" id="citizenAddress" />
                             </div>
                             <div class="row mb-3">
-                                <div class="col-md-6"> {{-- Cột cho Ghi chú --}}
+                                <div class="col-md-7"> {{-- Cột cho Ghi chú --}}
                                     <label for="processNote" class="form-label">Ghi chú:</label>
                                     <div id="editor-done" class="quill-editor"></div>
                                     <input type="hidden" name="citizen_note" id="citizen_note">
                                 </div>
-                                <div class="col-md-6"> {{-- Cột cho Tài liệu đính kèm --}}
-                                    <label class="form-label">Tài liệu đính kèm:</label>
+                                <div class="col-md-5 file-wrapper"> {{-- Cột cho Tài liệu đính kèm --}}
+                                    <label class="form-label">Tài liệu đính kèm:
+                                        <span class="file-count ms-1">0</span> tệp
+                                    </label>
                                     <div class="attached-files">
                                         {{-- Ví dụ về một file đính kèm, bạn sẽ cần lặp qua danh sách file thực tế --}}
 
@@ -213,14 +217,16 @@
                                     id="citizenAddress_done" />
                             </div>
                             <div class="row mb-3">
-                                <div class="col-md-6">
+                                <div class="col-md-7">
                                     <label for="processNote" class="form-label">Ghi chú:</label>
                                     <div id="editor-complete" class="quill-editor"></div>
                                     <input type="hidden" name="citizen_note" id="citizen_note_done">
 
                                 </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Tài liệu đính kèm:</label>
+                                <div class="col-md-5 file-wrapper">
+                                    <label class="form-label">Tài liệu đính kèm:
+                                        <span class="file-count ms-1">0</span> tệp
+                                    </label>
                                     <div class="attached-files">
 
                                     </div>
@@ -273,14 +279,17 @@
                                     id="citizenAddress_close" />
                             </div>
                             <div class="row mb-3">
-                                <div class="col-md-6">
+                                <div class="col-md-7">
                                     <label for="processNote" class="form-label">Ghi chú:</label>
                                     <div id="editor-close" class="quill-editor"></div>
                                     <input type="hidden" name="citizen_note" id="citizen_note_close">
 
                                 </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Tài liệu đính kèm:</label>
+                                <div class="col-md-5 file-wrapper">
+                                    <label class="form-label">Tài liệu đính kèm:
+                                        <span class="file-count ms-1">0</span> tệp
+                                    </label>
+
                                     <div class="attached-files">
 
                                     </div>
@@ -977,7 +986,23 @@
             setInterval(autoReloadCitizenServices, updateInterval);
         });
     </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const chooseStatus = document.getElementById('choose-status');
+            const dropdownButton = document.getElementById('statusDropdownButton');
 
+            // Khởi tạo dropdown của Bootstrap
+            const dropdownInstance = bootstrap.Dropdown.getOrCreateInstance(dropdownButton);
+
+            chooseStatus.addEventListener('click', function(e) {
+                // Nếu click trúng checkbox hoặc phần tử trong dropdown, bỏ qua
+                if (e.target.closest('.dropdown-menu') || e.target.closest('input')) return;
+                console.log('object');
+                // Toggle dropdown
+                dropdownInstance.show();
+            });
+        });
+    </script>
 
 
 

@@ -268,55 +268,62 @@ class DashboardController extends Controller
     }
 
     public function updateStatus(Request $request)
-    {
-        // dd($request->all());
-        $citizenService = CitizenService::find($request->id);
+{
+    // B1: Tìm yêu cầu
+    $citizenService = CitizenService::find($request->id);
 
-        if (!$citizenService) {
-            return response()->json(['success' => false, 'message' => 'Không tìm thấy yêu cầu']);
-        }
-
-
-        // Cập nhật start_processing và status nếu có
-        if (!is_null($request->start_processing)) {
-            $citizenService->start_procesing = $request->start_processing;
-        }
-
-        if (!is_null($request->status)) {
-            $citizenService->status = $request->status;
-        }
-
-        $citizenService->save();
-
-
-        $query = CitizenService::with(['citizen', 'service'])->whereIn('status', [
-            Status::New->value,
-            Status::Reviewing->value,
-            Status::InProgress->value,
-            Status::Done->value
-        ]);
-
-
-        if ($request->filled('service_code')) {
-            $query->whereHas('service', function ($q) use ($request) {
-                $q->where('code', $request->service_code);
-            });
-        }
-
-
-        if ($request->filled('citizen_name')) {
-            $query->whereHas('citizen', function ($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->citizen_name . '%');
-            });
-        }
-
-
-        $citizenServices = $query->orderBy('appointment_date')->get();
-
-        $updatedView = view('partials._citizen_service_list', compact('citizenServices'))->render();
-
-        return response()->json(['success' => true, 'updatedView' => $updatedView]);
+    if (!$citizenService) {
+        return response()->json(['success' => false, 'message' => 'Không tìm thấy yêu cầu']);
     }
+
+    // B2: Cập nhật nếu có
+    if (!is_null($request->start_processing)) {
+        $citizenService->start_procesing = $request->start_processing;
+    }
+
+    if (!is_null($request->status)) {
+        $citizenService->status = $request->status;
+    }
+
+    $citizenService->save();
+
+    // B3: Lấy dữ liệu filter từ request
+    $statuses = $request->filled('statuses') ? explode(',', $request->statuses) : [
+        Status::New->value,
+        Status::Reviewing->value,
+        Status::InProgress->value,
+        Status::Done->value
+    ];
+
+    $serviceCodes = $request->filled('service_codes') ? explode(',', $request->service_codes) : [];
+    $citizenName = $request->get('citizen_name');
+
+    // B4: Tạo query danh sách
+    $query = CitizenService::with(['citizen', 'service'])
+        ->whereIn('status', $statuses);
+
+    if (!empty($serviceCodes)) {
+        $query->whereHas('service', function ($q) use ($serviceCodes) {
+            $q->whereIn('code', $serviceCodes);
+        });
+    }
+
+    if (!empty($citizenName)) {
+        $query->whereHas('citizen', function ($q) use ($citizenName) {
+            $q->where('name', 'like', '%' . $citizenName . '%');
+        });
+    }
+
+    $citizenServices = $query->orderBy('appointment_date')->get();
+
+    // B5: Render lại HTML danh sách
+    $updatedView = view('partials._citizen_service_list', compact('citizenServices'))->render();
+
+    return response()->json([
+        'success' => true,
+        'updatedView' => $updatedView
+    ]);
+}
 
     public function getReviewedTickets()
     {

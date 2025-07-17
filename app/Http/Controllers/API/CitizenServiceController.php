@@ -182,7 +182,7 @@ class CitizenServiceController extends Controller
     public function getByZaloAndStatus(Request $request)
     {
         $zaloId = $request->input('zalo_id');
-        $statusGroup = $request->input('status_group');
+        $statusGroup = $request->input('status_group'); // nhận '0', '1', '2'
 
         $statusMap = GroupStatus::statusGroups();
 
@@ -297,42 +297,61 @@ class CitizenServiceController extends Controller
         return response()->json(['success' => true, 'message' => 'Cập nhật thành công!']);
     }
 
+
+
     public function uploadFile($id, Request $request)
-    {
-        $request->validate([
-            'files' => 'required|array|min:1',
-            'files.*.title' => 'required|string|max:255',
-            'files.*.file' => 'required|file|max:10240', // tối đa 10MB
-        ]);
+{
+    $request->validate([
+        'files' => 'required|array|min:1',
+        'files.*.title' => 'required|string|max:255',
+        'files.*.file' => 'required|file|max:10240', 
+    ]);
 
-        $citizenService = CitizenService::findOrFail($id);
+    $citizenService = CitizenService::findOrFail($id);
 
-        $savedFiles = [];
+  
+    $existingFileCount = CitizenServiceFile::where('citizen_service_id', $citizenService->id)->count();
 
-        foreach ($request->input('files') as $index => $inputFile) {
-            $title = $inputFile['title'];
-            $uploadedFile = $request->file("files.$index.file");
+   
+    $uploadCount = count($request->input('files'));
 
-            if ($uploadedFile && $uploadedFile->isValid()) {
-                $originalName = $uploadedFile->getClientOriginalName();
-                $filePath = $uploadedFile->storeAs('citizen_files', $originalName, 'public');
-
-                $saved = CitizenServiceFile::create([
-                    'citizen_service_id' => $citizenService->id,
-                    'title' => $title,
-                    'file_path' => $filePath,
-                ]);
-
-                $savedFiles[] = $saved;
-            }
-        }
-
+ 
+    if (($existingFileCount + $uploadCount) > 10) {
         return response()->json([
-            'success' => true,
-            'message' => 'Tải file thành công',
-            'data' => $savedFiles
-        ], 201);
+            'success' => false,
+            'message' => 'Tổng số tài liệu không được vượt quá 10.',
+        ], 422); 
     }
+
+    $savedFiles = [];
+
+    foreach ($request->input('files') as $index => $inputFile) {
+        $title = $inputFile['title'];
+        $uploadedFile = $request->file("files.$index.file");
+
+        if ($uploadedFile && $uploadedFile->isValid()) {
+            $originalExtension = $uploadedFile->getClientOriginalExtension();
+            $slugTitle = Str::slug($title, '_');
+            $fileName = $slugTitle . '_' . uniqid() . '.' . $originalExtension;
+
+            $filePath = $uploadedFile->storeAs('citizen_files', $fileName, 'public');
+
+            $saved = CitizenServiceFile::create([
+                'citizen_service_id' => $citizenService->id,
+                'title' => $title,
+                'file_path' => $filePath,
+            ]);
+
+            $savedFiles[] = $saved;
+        }
+    }
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Tải file thành công',
+        'data' => $savedFiles
+    ], 201);
+}
 
     public function getFiles($id)
     {

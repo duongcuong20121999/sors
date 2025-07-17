@@ -183,18 +183,28 @@ function formatFileSize(bytes) {
     return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
 }
 
-function renderAttachedFiles(files) {
-    const attachedFilesContainers = document.querySelectorAll('.attached-files');
-    if (!attachedFilesContainers || attachedFilesContainers.length === 0) return;
+function renderAttachedFiles(files, containerSelector = '.file-wrapper') {
+    const wrappers = document.querySelectorAll(containerSelector);
 
-    const imageExtensions = ['png', 'jpg', 'jpeg'];
+    wrappers.forEach(wrapper => {
+        const container = wrapper.querySelector('.attached-files');
+        const countLabel = wrapper.querySelector('.file-count');
 
-    attachedFilesContainers.forEach(container => {
-        container.innerHTML = ''; // Xoá nội dung cũ
+        if (!container || !countLabel) return;
 
+        // Reset nội dung cũ
+        container.innerHTML = '';
+
+        if (!files || !Array.isArray(files) || files.length === 0) {
+            countLabel.textContent = '0';
+            return;
+        }
+
+        // Render từng file
         files.forEach(file => {
             const fileSizeMb = formatFileSize(file.size);
-            const fileIcon = imageExtensions.includes(file.extension?.toLowerCase())
+            const imageExtensions = ['png', 'jpg', 'jpeg'];
+            const fileIcon = imageExtensions.includes(file.extension.toLowerCase())
                 ? 'image_file.png'
                 : 'doc_file.png';
 
@@ -226,6 +236,9 @@ function renderAttachedFiles(files) {
 
             container.insertAdjacentHTML('beforeend', fileItemHtml);
         });
+
+        // Cập nhật số lượng
+        countLabel.textContent = files.length;
     });
 }
 
@@ -240,7 +253,6 @@ $(document).on('click', '.custom-btn-1', function () {
 
 async function showProcessModal(button) {
     const idCitizenService = button.dataset.id;
-
     if (!idCitizenService) {
         alert('Không tìm thấy ID');
         return;
@@ -249,19 +261,21 @@ async function showProcessModal(button) {
     try {
         const basePath = window.location.pathname.split('/dashboard')[0];
 
-        const serviceCodeElement = document.querySelector('select[name="service_code"]');
-        const citizenNameElement = document.querySelector('input[name="citizen_name"]');
+        // 🔍 Lấy filter hiện tại
+        const selectedStatuses = Array.from(document.querySelectorAll('.status-checkbox:checked'))
+            .map(cb => cb.value);
+        const selectedServices = Array.from(document.querySelectorAll('.service-checkbox:checked'))
+            .map(cb => cb.value);
+        const citizenName = document.querySelector('#search-citizen')?.value ?? '';
 
-        const serviceCode = serviceCodeElement ? serviceCodeElement.value : '';
-        const citizenName = citizenNameElement ? citizenNameElement.value : '';
-
-
+        // 🧩 Tạo query string cho các filter
         const params = new URLSearchParams({
-            service_code: serviceCode,
+            statuses: selectedStatuses.join(','),
+            service_codes: selectedServices.join(','),
             citizen_name: citizenName,
         }).toString();
 
-        // Gọi fetch với URL mới
+        // 🔄 Gọi API lấy chi tiết yêu cầu
         const response = await fetch(`${basePath}/dashboard/detail/citizen-service/${idCitizenService}?${params}`, {
             method: 'GET',
             headers: {
@@ -270,53 +284,45 @@ async function showProcessModal(button) {
         });
 
         const data = await response.json();
-        renderAttachedFiles(data.files || []);
+
         if (data.error) {
             alert('Không tìm thấy dữ liệu');
             return;
         }
 
-        const modalTitle = `STT: ${data.sequence_number ?? ''} - ${data.name.toUpperCase()} (${data.phone}) - DV: ${data.service.toUpperCase()}`;
+        // 📝 Đẩy dữ liệu vào modal
         document.getElementById('citizenServiceId').value = data.id;
-        document.getElementById('processModalLabel').textContent = modalTitle;
+        document.getElementById('processModalLabel').textContent = `STT: ${data.sequence_number ?? ''} - ${data.name.toUpperCase()} (${data.phone}) - DV: ${data.service.toUpperCase()}`;
         document.getElementById('citizenAddress').value = data.address;
         document.getElementById('status').value = data.status;
+        editorDone.root.innerHTML = data.citizen_note ?? '';
 
-        const citizenServiceId = data.id;
+        renderAttachedFiles(data.files || []);
 
-        //update status to reviewed to support reader
-        fetch(`${basePath}/dashboard/citizen-service/update-status?service_code=${serviceCode}&citizen_name=${citizenName}`, {
+        // ✅ Gọi API update status (giữ filter)
+        fetch(`${basePath}/dashboard/citizen-service/update-status?${params}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector(
-                    'meta[name="csrf-token"]').getAttribute('content')
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
             },
             body: JSON.stringify({
-                id: citizenServiceId,
+                id: idCitizenService,
                 status: 1
             })
         })
-            .then(response => response.json())
+            .then(res => res.json())
             .then(data => {
                 if (data.success) {
-
-
-                    document.querySelector(`#citizen-service-list`).innerHTML =
-                        data.updatedView;
-
+                    document.querySelector('#citizen-service-list').innerHTML = data.updatedView;
                     renderUtcTimes();
-
                 } else {
                     console.error('Cập nhật thất bại');
                 }
             })
             .catch(error => console.error('Lỗi:', error));
 
-
-        // Đẩy dữ liệu vào Quill Editor #editor-process
-        editorDone.root.innerHTML = data.citizen_note ?? '';
-
+        // ❌ Xử lý hủy yêu cầu
         const cancelButton = document.getElementById('cancelButton');
         cancelButton.onclick = async function (e) {
             e.preventDefault();
@@ -331,9 +337,7 @@ async function showProcessModal(button) {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                     },
-                    body: JSON.stringify({
-                        citizen_note: citizenNoteContent,
-                    })
+                    body: JSON.stringify({ citizen_note: citizenNoteContent })
                 });
 
                 const result = await response.json();
@@ -346,10 +350,8 @@ async function showProcessModal(button) {
                     };
                     toastr[result.alertType](result.message);
 
-                    // Cập nhật lại danh sách
                     document.getElementById('citizen-service-list').innerHTML = result.updatedListHtml;
 
-                    // Ẩn modal
                     const modalElement = document.getElementById('processModal');
                     const modalInstance = bootstrap.Modal.getInstance(modalElement);
                     modalInstance.hide();
@@ -362,11 +364,11 @@ async function showProcessModal(button) {
             }
         };
 
+        // ✅ Cập nhật form submit modal
         const updateForm = document.getElementById('processForm');
         updateForm.action = `${window.location.origin}${basePath}/dashboard/update/citizen-service/${idCitizenService}`;
 
-
-        // Hiển thị modal
+        // 🪟 Hiển thị modal
         const modalElement = document.getElementById('processModal');
         const processModal = new bootstrap.Modal(modalElement, {
             backdrop: true,
@@ -378,9 +380,7 @@ async function showProcessModal(button) {
             button.focus();
         }, { once: true });
 
-
-
-        processModal.show(); // Hiển thị modal
+        processModal.show();
     } catch (err) {
         console.error('Lỗi khi gọi API:', err);
         alert('Lỗi khi tải dữ liệu từ máy chủ.');
