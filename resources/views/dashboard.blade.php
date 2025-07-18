@@ -426,7 +426,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
                 </div>
                 <div class="modal-body pt-0">
-                    <p class="my-3 delete-confirm-message">Bạn có chắc chắn muốn hủy yêu cầu đã chọn?</p>
+                    <p class="my-3 delete-confirm-message">Bạn có chắc chắn muốn hủy những yêu cầu đã chọn?</p>
                 </div>
                 <div class="modal-footer mt-3">
                     <button type="button" class="yes-all-confirm btn btn-danger">Đồng ý</button>

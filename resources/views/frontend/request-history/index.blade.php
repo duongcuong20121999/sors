@@ -33,7 +33,7 @@
                                     data-code="{{ $s->code }}">{{ $s->name }} (Quầy số {{ $s->order }})</a>
                             </li>
                         @endforeach
-                    </ul>
+                    </ul>   
                 </div>
 
                 <input type="hidden" id="service-code" name="service_code" value="">
