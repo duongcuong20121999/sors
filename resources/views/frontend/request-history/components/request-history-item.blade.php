@@ -1,8 +1,10 @@
 @foreach ($citizenServices as $cs)
-    <div class="display-section d-flex justify-content-between align-items-center" data-updated-at="{{ \Carbon\Carbon::parse($cs->updated_at)->setTimezone('Asia/Ho_Chi_Minh')->toIso8601String() }}">
+    <div class="display-section d-flex justify-content-between align-items-center"
+        data-updated-at="{{ \Carbon\Carbon::parse($cs->updated_at)->setTimezone('Asia/Ho_Chi_Minh')->toIso8601String() }}">
         <!-- Cột ảnh + tên + địa chỉ -->
         <div class="d-flex align-items-center gap-3" style="flex: 3.5;">
-            <img src="{{ $cs->citizen->avatar ? asset($cs->citizen->avatar) : asset('frontend/assets/images/user.png') }}" alt="logo" class="img-fluid rounded-circle" />
+            <img src="{{ $cs->citizen->avatar ? asset($cs->citizen->avatar) : asset('frontend/assets/images/user.png') }}"
+                alt="logo" class="img-fluid rounded-circle" />
             <div>
                 <p class="mb-0 name">{{ $cs->citizen->name }}</p>
                 <p class="mb-0 location">{{ $cs->citizen->address }}</p>
@@ -17,7 +19,8 @@
                 <p class="mb-0 name-service">{{ $cs->service->name }}</p>
                 {{-- <span class="utc-time">{{convertDateToVn($cs->created_date) }}</span> --}}
                 {{-- <span>{{convertDateToVn($cs->created_date) }}</span> --}}
-                <span class="utc-time" data-time="{{ \Carbon\Carbon::parse($cs->created_date)->setTimezone('Asia/Ho_Chi_Minh')->toIso8601String() }}"></span>
+                <span class="utc-time"
+                    data-time="{{ \Carbon\Carbon::parse($cs->created_date)->setTimezone('Asia/Ho_Chi_Minh')->toIso8601String() }}"></span>
             </div>
         </div>
 
@@ -27,23 +30,34 @@
             <span class="request-code fs-3">{{ $cs->sequence_number ?? 'N/A' }}</span>
         </div>
 
+        <div class="d-none attached-files-json">
+            {{ json_encode(
+                $cs->files->map(function ($file) {
+                    return [
+                        'title' => $file->title,
+                        'file_path' => asset($file->file_path),
+                        'filename' => basename($file->file_path),
+                        'size' => Storage::exists($file->file_path) ? Storage::size($file->file_path) : null,
+                    ];
+                }),
+            ) }}
+        </div>
+
         <div class="line"></div>
 
         <!-- Cột trạng thái + cán bộ -->
         <div style="flex: 1.5;" class="d-flex justify-content-center flex-column align-items-center">
             <span class="status {{ checkStatusClass($cs->status) }}">
-                {{
-                    match($cs->status) {
-                        0 => 'Mới',
-                        1 => 'Đã xem',
-                        2 => 'Đang xử lý',
-                        3 => 'Đã hoàn thành',
-                        4 => 'Đã đóng',
-                        5 => 'Đã từ chối',
-                        6 => 'Đã huỷ',
-                        default => 'Không xác định',
-                    }
-                }}
+                {{ match ($cs->status) {
+                    0 => 'Mới',
+                    1 => 'Đã xem',
+                    2 => 'Đang xử lý',
+                    3 => 'Đã hoàn thành',
+                    4 => 'Đã đóng',
+                    5 => 'Đã từ chối',
+                    6 => 'Đã huỷ',
+                    default => 'Không xác định',
+                } }}
             </span>
             {{-- <span class="officer-name">{{ $cs->officer_name ?? 'Chưa cập nhật' }}</span> --}}
         </div>

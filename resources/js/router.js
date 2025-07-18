@@ -237,17 +237,17 @@ function renderAttachedFiles(files, containerSelector = '.file-wrapper') {
             container.insertAdjacentHTML('beforeend', fileItemHtml);
         });
 
-        // Cập nhật số lượng
+
         countLabel.textContent = files.length;
     });
 }
 
 function loadModal() {
-    initializeModalEvents(); // Chỉ cần khởi tạo sự kiện
+    initializeModalEvents(); 
 }
 
 $(document).on('click', '.custom-btn-1', function () {
-    // $("#processModal").modal("show")
+
     showProcessModal(this);
 });
 
@@ -261,21 +261,20 @@ async function showProcessModal(button) {
     try {
         const basePath = window.location.pathname.split('/dashboard')[0];
 
-        // 🔍 Lấy filter hiện tại
         const selectedStatuses = Array.from(document.querySelectorAll('.status-checkbox:checked'))
             .map(cb => cb.value);
         const selectedServices = Array.from(document.querySelectorAll('.service-checkbox:checked'))
             .map(cb => cb.value);
         const citizenName = document.querySelector('#search-citizen')?.value ?? '';
 
-        // 🧩 Tạo query string cho các filter
+ 
         const params = new URLSearchParams({
             statuses: selectedStatuses.join(','),
             service_codes: selectedServices.join(','),
             citizen_name: citizenName,
         }).toString();
 
-        // 🔄 Gọi API lấy chi tiết yêu cầu
+   
         const response = await fetch(`${basePath}/dashboard/detail/citizen-service/${idCitizenService}?${params}`, {
             method: 'GET',
             headers: {
@@ -284,13 +283,13 @@ async function showProcessModal(button) {
         });
 
         const data = await response.json();
-
+        renderAttachedFiles(data.files || []);
         if (data.error) {
             alert('Không tìm thấy dữ liệu');
             return;
         }
 
-        // 📝 Đẩy dữ liệu vào modal
+
         document.getElementById('citizenServiceId').value = data.id;
         document.getElementById('processModalLabel').textContent = `STT: ${data.sequence_number ?? ''} - ${data.name.toUpperCase()} (${data.phone}) - DV: ${data.service.toUpperCase()}`;
         document.getElementById('citizenAddress').value = data.address;
@@ -299,7 +298,7 @@ async function showProcessModal(button) {
 
         renderAttachedFiles(data.files || []);
 
-        // ✅ Gọi API update status (giữ filter)
+     
         fetch(`${basePath}/dashboard/citizen-service/update-status?${params}`, {
             method: 'POST',
             headers: {
@@ -322,7 +321,7 @@ async function showProcessModal(button) {
             })
             .catch(error => console.error('Lỗi:', error));
 
-        // ❌ Xử lý hủy yêu cầu
+
         const cancelButton = document.getElementById('cancelButton');
         cancelButton.onclick = async function (e) {
             e.preventDefault();
@@ -364,11 +363,11 @@ async function showProcessModal(button) {
             }
         };
 
-        // ✅ Cập nhật form submit modal
+
         const updateForm = document.getElementById('processForm');
         updateForm.action = `${window.location.origin}${basePath}/dashboard/update/citizen-service/${idCitizenService}`;
 
-        // 🪟 Hiển thị modal
+
         const modalElement = document.getElementById('processModal');
         const processModal = new bootstrap.Modal(modalElement, {
             backdrop: true,
@@ -558,20 +557,6 @@ async function showCancelModal(button) {
         alert('Lỗi khi tải dữ liệu từ máy chủ.');
     }
 }
-
-// Xử lý nút "Đồng ý"
-// document.body.addEventListener('click', function (event) {
-//     if (event.target && event.target.classList.contains('yes-confirm')) {
-//         const id = event.target.getAttribute('data-id');
-//         if (id) {
-//             const basePath = window.location.pathname.split('/dashboard')[0];
-//             window.location.href = `${window.location.origin}${basePath}/dashboard/cancel-process/${id}`;
-//         } else {
-//             alert('Không tìm thấy ID để huỷ yêu cầu!');
-//         }
-//     }
-// });
-
 
 
 

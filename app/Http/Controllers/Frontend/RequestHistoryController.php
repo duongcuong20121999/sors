@@ -8,7 +8,7 @@ use App\Models\Service;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-
+use App\Enums\Status;
 class RequestHistoryController extends Controller
 {
     /**
@@ -17,7 +17,11 @@ class RequestHistoryController extends Controller
     public function index(Request $request)
     {
         $services = Service::all();
-        $query = CitizenService::with(['citizen', 'service'])->whereIn('status', [ 4, 5, 6]);
+        $query = CitizenService::with(['citizen', 'service', 'files'])->whereIn('status', [ 
+            Status::Closed->value,
+            Status::Rejected->value,
+            Status::Cancelled->value
+        ]);
 
         if ($request->filled('service_code')) {
             $query->whereHas('service', function ($q) use ($request) {

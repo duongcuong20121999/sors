@@ -2361,6 +2361,7 @@ input[type="checkbox"] {
     min-width: 300px;
     max-height: 150px;
     overflow-y: auto;
+    transform: translate(2px, 39px) !important;
 }
 
 #dropdown-list-footer .dropdown-item {

@@ -22,17 +22,20 @@
                     Huỷ
                 </a>
             </div>
+            <div>
+                
+            </div>
             <!-- Chọn trạng thái -->
-            <div class="choose-status d-flex align-items-center" style="margin-right: 20px" id="choose-status">
+            <div class="choose-status d-flex align-items-center" data-bs-toggle="dropdown" style="margin-right: 20px"
+                id="choose-status">
                 <label class="m-2">Chọn trạng thái:</label>
                 <p id="selected-status" class="mb-0"></p>
 
                 <div class="dropdown ms-2">
-                    <button class="btn btn-outline-secondary dropdown-toggle p-2 d-flex align-items-center" type="button"
-                        id="statusDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">
+                    <button class="btn btn-outline-secondary dropdown-toggle p-2 d-flex align-items-center" da type="button"
+                        id="statusDropdownButton" aria-expanded="false">
                         <ion-icon name="chevron-down-outline" class="ms-2"></ion-icon>
                     </button>
-
                     <ul class="dropdown-menu" aria-labelledby="statusDropdownButton" id="status-dropdown-list">
                         <li><a class="dropdown-item1 status-option" href="#" data-status="">Tất cả trạng thái</a></li>
                         @foreach ($statusOptions as $key => $label)
@@ -53,13 +56,13 @@
             </div>
 
             <!-- Chọn dịch vụ -->
-            <div class="choose-service d-flex align-items-center">
+            <div class="choose-service d-flex align-items-center" id="choose-service" >
                 <label for="choose-service" class="m-2">Chọn dịch vụ:</label>
                 <p id="selected-service" class="mb-0"></p>
 
                 <div class="dropdown ms-2">
                     <button class="btn btn-outline-secondary p-2 d-flex align-items-center" type="button"
-                        id="serviceDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">
+                        id="serviceDropdownButton" aria-expanded="false" data-bs-toggle="dropdown">
                         <ion-icon name="chevron-down-outline" class="ms-2" id="dropdown-icon"></ion-icon>
                     </button>
 
@@ -413,11 +416,30 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="confirmModalLabel"
+        aria-hidden="true" data-bs-backdrop="false">
+        <div class="modal-dialog modal-dialog-centered modal-lg confirm-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <p class="modal-title" id="confirmModalLabel">Hủy yêu cầu</p>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+                <div class="modal-body pt-0">
+                    <p class="my-3 delete-confirm-message">Bạn có chắc chắn muốn hủy yêu cầu đã chọn?</p>
+                </div>
+                <div class="modal-footer mt-3">
+                    <button type="button" class="yes-all-confirm btn btn-danger">Đồng ý</button>
+                    <button type="button" class="no-confirm btn btn-secondary" data-bs-dismiss="modal">Không</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     </div>
 
     </main>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
 
     <script>
         const assetBaseUrl = "{{ asset('frontend/assets/images') }}";
@@ -572,13 +594,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Xử lý khi nhấn nút Đóng (không còn cập nhật status tại đây nữa)
-            // document.querySelectorAll('.custom-close-btn, .btn-close').forEach(function(btn) {
-            //     btn.addEventListener('click', function() {
-            //         // Chỉ đóng modal, không cập nhật gì
-            //         console.log('Modal closed – no update triggered here.');
-            //     });
-            // });
+
 
             // Xử lý checkbox "Bắt đầu xử lý"
             const checkbox = document.getElementById('startProcessing');
@@ -856,6 +872,8 @@
             });
 
 
+            let selectedIdsForDeletion = []; // Biến lưu tạm ID đã chọn
+
             document.getElementById('destroyBtnCitizenService').addEventListener('click', function() {
                 const selectedIds = Array.from(document.querySelectorAll('.citizen-service-checkbox'))
                     .filter(cb => cb.checked)
@@ -866,9 +884,17 @@
                     return;
                 }
 
-                if (!confirm('Bạn có chắc chắn muốn huỷ các yêu cầu đã chọn?')) return;
+                selectedIdsForDeletion = selectedIds; // Gán để dùng sau khi xác nhận
 
+                // Hiển thị modal xác nhận
+                const confirmModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+                confirmModal.show();
+            });
+
+            // Khi click "Đồng ý" trong modal
+            document.querySelector('.yes-all-confirm').addEventListener('click', function() {
                 const basePath = window.location.pathname.split('/dashboard')[0];
+
                 fetch(`${window.location.origin}${basePath}/dashboard/citizen-service/cancel-multiple`, {
                         method: 'POST',
                         headers: {
@@ -877,7 +903,7 @@
                                 .getAttribute('content')
                         },
                         body: JSON.stringify({
-                            ids: selectedIds
+                            ids: selectedIdsForDeletion
                         })
                     })
                     .then(res => res.json())
@@ -893,10 +919,15 @@
                             toastr.success(data.message);
                             document.getElementById('citizen-service-list').innerHTML = data
                                 .updatedListHtml;
-                            formatUtcTimes();
+                            formatUtcTimes(); // nếu có dùng
                         } else {
                             toastr.error(data.message || 'Huỷ thất bại.');
                         }
+
+                        // Đóng modal sau khi xử lý
+                        const confirmModal = bootstrap.Modal.getInstance(document.getElementById(
+                            'deleteConfirmModal'));
+                        confirmModal.hide();
                     })
                     .catch(err => {
                         console.error('Lỗi:', err);
@@ -985,24 +1016,23 @@
         getUpdateInterval().then(() => {
             setInterval(autoReloadCitizenServices, updateInterval);
         });
-    </script>
-    <script>
+
         document.addEventListener('DOMContentLoaded', function() {
-            const chooseStatus = document.getElementById('choose-status');
-            const dropdownButton = document.getElementById('statusDropdownButton');
+            document.getElementById('choose-service').addEventListener('click', function(e) {
+                const dropdownBtn = document.getElementById('serviceDropdownButton');
+                const dropdownMenu = document.getElementById('dropdown-list');
 
-            // Khởi tạo dropdown của Bootstrap
-            const dropdownInstance = bootstrap.Dropdown.getOrCreateInstance(dropdownButton);
+                if (dropdownBtn.contains(e.target) || dropdownMenu.contains(e.target)) return;
 
-            chooseStatus.addEventListener('click', function(e) {
-                // Nếu click trúng checkbox hoặc phần tử trong dropdown, bỏ qua
-                if (e.target.closest('.dropdown-menu') || e.target.closest('input')) return;
-                console.log('object');
-                // Toggle dropdown
-                dropdownInstance.show();
+                const dropdown = bootstrap.Dropdown.getOrCreateInstance(dropdownMenu);
+                dropdown.toggle();
             });
         });
+
+
+
     </script>
+
 
 
 
