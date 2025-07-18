@@ -35,7 +35,7 @@
                 $cs->files->map(function ($file) {
                     return [
                         'title' => $file->title,
-                        'file_path' => Storage::url(str_replace('public/', '', $file->file_path)),
+                        'file_path' => asset('storage/' . $file->file_path),
                         'filename' => basename($file->file_path),
                         'size' => Storage::disk('public')->exists(str_replace('public/', '', $file->file_path))
                             ? Storage::disk('public')->size(str_replace('public/', '', $file->file_path))
