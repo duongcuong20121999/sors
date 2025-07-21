@@ -250,7 +250,19 @@ class PostsController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+
+    $post = Post::findOrFail($id);
+
+    $post->delete();
+
+     $notification = [
+            'message' => 'Bài viết đã được xoá thành công!',
+            'alert-type' => 'success',
+        ];
+
+
+    // Redirect với thông báo thành công
+    return redirect()->route('posts.index')->with($notification);
     }
 
     public function filter(Request $request)

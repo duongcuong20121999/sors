@@ -41,12 +41,14 @@
                                 {{ $currentCategory }}
                             </p>
                             <div class="dropdown-footer ms-auto dropup">
-                                <a aria-label="Chọn nhóm tin" class="btn btn-outline-secondary p-2 d-flex align-items-center" href="#"
+                                <a aria-label="Chọn nhóm tin"
+                                    class="btn btn-outline-secondary p-2 d-flex align-items-center" href="#"
                                     role="button" id="dropdownMenuButton">
                                     <ion-icon name="chevron-down-outline" id="dropdown-icon"></ion-icon>
                                 </a>
                                 <ul class="dropdown-menu" id="dropdown-list-footer" aria-labelledby="dropdownMenuButton">
-                                    <li><a aria-label="Tất cả" class="dropdown-item" href="#" data-category="Lựa chọn tất cả">Lựa chọn tất
+                                    <li><a aria-label="Tất cả" class="dropdown-item" href="#"
+                                            data-category="Lựa chọn tất cả">Lựa chọn tất
                                             cả</a></li>
                                     @foreach ($list_service as $item)
                                         <li>
@@ -87,14 +89,16 @@
 
                         <div class="news-name mt-3">
                             <label for="post1" class="mb-2">Tiêu đề:</label>
-                            <input id="post1" type="text" name="title" class="form-control" value="{{ old('title') }}">
+                            <input id="post1" type="text" name="title" class="form-control"
+                                value="{{ old('title') }}">
                         </div>
                         <div class="mt-3">
                             <label for="choose-news" class="mb-2">Chọn nhóm tin:</label>
                             <div class="choose-news" data-bs-toggle="dropdown" aria-expanded="false">
                                 <p id="selected-news" class="mb-0"></p>
                                 <div class="dropdown ms-auto">
-                                    <a aria-label="Chọn nhóm tin" class="btn btn-outline-secondary  p-2 d-flex align-items-center" href="#"
+                                    <a aria-label="Chọn nhóm tin"
+                                        class="btn btn-outline-secondary  p-2 d-flex align-items-center" href="#"
                                         role="button" id="dropdownMenuButton">
                                         <ion-icon name="chevron-down-outline" id="dropdown-icon"></ion-icon>
                                     </a>
@@ -113,11 +117,12 @@
                         <div class="service-news mt-3">
                             {{-- <p class="mb-2">Nội dung ngắn gọn:</p> --}}
                             <label class="mb-2" for="post2">Nội dung ngắn gọn:</label>
-                            <textarea  class="form-control" name="service_description" id="post2">{{ old('service_description') }}</textarea>
+                            <textarea class="form-control" name="service_description" id="post2">{{ old('service_description') }}</textarea>
                         </div>
                         <div class="mt-3">
                             <label for="editor" class="form-label mb-2">Nội dung chi tiết:</label>
-                            <div id="editor" class="quill-editor"></div>
+                            <div id="editor" class="quill-editor" style="height: 350px !important;"></div>
+
                         </div>
 
                         <input type="hidden" name="content" id="quill-content">
@@ -176,12 +181,17 @@
             });
             const toolbarButtons = document.querySelectorAll('.ql-toolbar button');
             toolbarButtons.forEach(button => {
-            if (button.classList.contains('ql-bold')) button.setAttribute('aria-label', 'In đậm');
-            else if (button.classList.contains('ql-italic')) button.setAttribute('aria-label', 'In nghiêng');
-            else if (button.classList.contains('ql-underline')) button.setAttribute('aria-label', 'Gạch chân');
-            else if (button.classList.contains('ql-image')) button.setAttribute('aria-label', 'Chèn ảnh');
-            else if (button.classList.contains('ql-list')) button.setAttribute('aria-label', 'Danh sách');
-            else if (button.classList.contains('ql-align')) button.setAttribute('aria-label', 'Căn chỉnh');
+                if (button.classList.contains('ql-bold')) button.setAttribute('aria-label', 'In đậm');
+                else if (button.classList.contains('ql-italic')) button.setAttribute('aria-label',
+                    'In nghiêng');
+                else if (button.classList.contains('ql-underline')) button.setAttribute('aria-label',
+                    'Gạch chân');
+                else if (button.classList.contains('ql-image')) button.setAttribute('aria-label',
+                    'Chèn ảnh');
+                else if (button.classList.contains('ql-list')) button.setAttribute('aria-label',
+                    'Danh sách');
+                else if (button.classList.contains('ql-align')) button.setAttribute('aria-label',
+                    'Căn chỉnh');
             });
             const toolbar = quill.getModule('toolbar');
             toolbar.addHandler('size', function(value) {
@@ -302,9 +312,6 @@
             }
 
         });
-
-
- 
     </script>
 
 

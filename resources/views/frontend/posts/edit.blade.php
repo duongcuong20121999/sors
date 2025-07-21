@@ -11,6 +11,11 @@
             <a href="{{ route('posts.create') }}" class="btn-add">Thêm mới</a>
         </div>
 
+        <form id="deletePostForm" method="POST" action="{{ route('posts.destroy', $post_update->id) }}">
+            @csrf
+            @method('DELETE')
+        </form>
+
         <div class="container">
             <div class="row mt-4">
                 <!-- list -->
@@ -39,7 +44,8 @@
                                 {{ $currentCategory }}
                             </p>
                             <div class="dropdown-footer ms-auto dropup">
-                                <a aria-label="Chọn nhóm tin" class="btn btn-outline-secondary p-2 d-flex align-items-center" href="#"
+                                <a aria-label="Chọn nhóm tin"
+                                    class="btn btn-outline-secondary p-2 d-flex align-items-center" href="#"
                                     role="button" id="dropdownMenuButton">
                                     <ion-icon name="chevron-down-outline" id="dropdown-icon"></ion-icon>
                                 </a>
@@ -75,16 +81,32 @@
 
 
 
-                        <div class="select-image d-flex align-items-center">
-                            <div class="image-wrapper" style="border: 1px solid #28CD56;"  id="imageWrapper">
-                                <img id="selected-image-post"
-                                    class="photo-post {{ $post_update->thumbnail ? 'full-image' : '' }}"
-                                    src="{{ old('thumbnail', asset($post_update->thumbnail ?? 'frontend/assets/images/photo.png')) }}"
-                                    alt="logo">
+                        <div class="select-image d-flex justify-content-between align-items-center">
+                            <!-- Bên trái: Khung ảnh -->
+                            <div class="d-flex align-items-center">
+                                <div class="image-wrapper" style="border: 1px solid #28CD56;" id="imageWrapper">
+                                    <img id="selected-image-post"
+                                        class="photo-post {{ $post_update->thumbnail ? 'full-image' : '' }}"
+                                        src="{{ old('thumbnail', asset($post_update->thumbnail ?? 'frontend/assets/images/photo.png')) }}"
+                                        alt="logo">
+                                </div>
+                                <input type="file" name="thumbnail" id="file-input-post" style="display: none;">
+                                <a class="choose-image-btn-post ms-3 btn btn-success" id="choose-image-btn-post">Chọn ảnh
+                                    bài viết</a>
                             </div>
-                            <input type="file" name="thumbnail" id="file-input-post" style="display: none;">
-                            <a class="choose-image-btn-post" id="choose-image-btn-post">Chọn ảnh bài viết</a>
+
+
+                            <button type="button" class="delete-post-btn" data-bs-toggle="modal"
+                                data-bs-target="#deleteConfirmModal">
+                                Xoá bài viết
+                            </button>
+
+
+
+
                         </div>
+
+
 
                         <div class="news-name mt-3">
                             <label for="post1" class="mb-2">Tiêu đề:</label>
@@ -97,7 +119,8 @@
                                 <p id="selected-news" class="mb-0">{{ old('category', $post_update->category ?? '') }}
                                 </p>
                                 <div class="dropdown ms-auto">
-                                    <a aria-label="Chọn nhóm tin" class="btn btn-outline-secondary  p-2 d-flex align-items-center" href="#"
+                                    <a aria-label="Chọn nhóm tin"
+                                        class="btn btn-outline-secondary  p-2 d-flex align-items-center" href="#"
                                         role="button" id="dropdownMenuButton">
                                         <ion-icon name="chevron-down-outline" id="dropdown-icon"></ion-icon>
                                     </a>
@@ -121,7 +144,7 @@
                         </div>
                         <div class="mt-3">
                             <label for="editor" class="form-label mb-2">Nội dung chi tiết:</label>
-                            <div id="editor" class="quill-editor"></div>
+                            <div id="editor" class="quill-editor" style="height: 350px !important;"></div>
                         </div>
 
                         <input type="hidden" name="content" id="quill-content">
@@ -139,6 +162,25 @@
             </div>
         </div>
 
+    </div>
+
+    <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="confirmModalLabel"
+        aria-hidden="true" data-bs-backdrop="false">
+        <div class="modal-dialog modal-dialog-centered modal-lg confirm-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <p class="modal-title" id="confirmModalLabel">Xác nhận xoá bài viết</p>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+                <div class="modal-body pt-0">
+                    <p class="my-3 delete-confirm-message">Bạn có chắc chắn muốn xoá bài viết này?</p>
+                </div>
+                <div class="modal-footer mt-3">
+                    <button type="button" class="yes-all-confirm btn btn-danger" id="confirmDeleteBtn">Đồng ý</button>
+                    <button type="button" class="no-confirm btn btn-secondary" data-bs-dismiss="modal">Không</button>
+                </div>
+            </div>
+        </div>
     </div>
 
 
@@ -181,12 +223,17 @@
             });
             const toolbarButtons = document.querySelectorAll('.ql-toolbar button');
             toolbarButtons.forEach(button => {
-            if (button.classList.contains('ql-bold')) button.setAttribute('aria-label', 'In đậm');
-            else if (button.classList.contains('ql-italic')) button.setAttribute('aria-label', 'In nghiêng');
-            else if (button.classList.contains('ql-underline')) button.setAttribute('aria-label', 'Gạch chân');
-            else if (button.classList.contains('ql-image')) button.setAttribute('aria-label', 'Chèn ảnh');
-            else if (button.classList.contains('ql-list')) button.setAttribute('aria-label', 'Danh sách');
-            else if (button.classList.contains('ql-align')) button.setAttribute('aria-label', 'Căn chỉnh');
+                if (button.classList.contains('ql-bold')) button.setAttribute('aria-label', 'In đậm');
+                else if (button.classList.contains('ql-italic')) button.setAttribute('aria-label',
+                    'In nghiêng');
+                else if (button.classList.contains('ql-underline')) button.setAttribute('aria-label',
+                    'Gạch chân');
+                else if (button.classList.contains('ql-image')) button.setAttribute('aria-label',
+                    'Chèn ảnh');
+                else if (button.classList.contains('ql-list')) button.setAttribute('aria-label',
+                    'Danh sách');
+                else if (button.classList.contains('ql-align')) button.setAttribute('aria-label',
+                    'Căn chỉnh');
             });
             const toolbar = quill.getModule('toolbar');
             toolbar.addHandler('size', function(value) {
@@ -197,13 +244,13 @@
             });
 
             window.addEventListener('load', function() {
-            
+
                 var oldContent = `{!! old('content') !!}`;
                 if (oldContent) {
                     quill.root.innerHTML = oldContent;
                 }
 
-          
+
                 const oldCategory = "{{ old('category') }}";
                 if (oldCategory) {
                     document.getElementById('selected-news').textContent = oldCategory;
@@ -211,24 +258,24 @@
                 }
             });
 
-        
+
             const oldContent = {!! json_encode(old('content', $post_update->content ?? '')) !!};
             quill.clipboard.dangerouslyPasteHTML(oldContent);
 
-        
+
             document.querySelector('.save-news').addEventListener('click', function() {
-          
+
                 document.querySelector("#quill-content").value = quill.root.innerHTML;
 
-  
+
                 const selectedCategoryText = document.querySelector("#selected-news").innerText;
                 document.querySelector("#selected-category").value = selectedCategoryText;
 
-             
+
                 document.querySelector("#service-form").submit();
             });
 
-        
+
             document.querySelectorAll("#dropdown-list .dropdown-item").forEach(item => {
                 item.addEventListener("click", function(e) {
                     e.preventDefault();
@@ -236,11 +283,11 @@
                 });
             });
 
-          
-            
+
+
             var currentCategory = "{{ $currentCategory }}"; // Lưu nhóm tin đang chọn
 
-            
+
             $('#dropdown-list-footer a').on('click', function(e) {
                 e.preventDefault();
                 currentCategory = $(this).data('category');
@@ -248,7 +295,7 @@
                 fetchFilteredPosts(1);
             });
 
-            
+
             $(document).on('click', '.pagination .page-link', function(e) {
                 e.preventDefault();
 
@@ -290,7 +337,7 @@
                         category: currentCategory,
                         page: page
                     },
-                    
+
                     success: function(data) {
                         $('#list-news-container').html(data.posts);
                         if (data.pagination.trim() !== '') {
@@ -312,7 +359,7 @@
         function updateDividerLine() {
             setTimeout(() => {
                 const container = document.getElementById("list-news-container");
-           
+
                 const divider = document.querySelector(".divider-line");
 
                 if (container && divider) {
@@ -325,9 +372,21 @@
 
         updateDividerLine();
 
-        
+        document.addEventListener("DOMContentLoaded", function() {
+            const confirmBtn = document.getElementById('confirmDeleteBtn');
+            const deleteForm = document.getElementById('deletePostForm');
 
-        
+            if (!deleteForm) {
+                console.error('Form xoá bài viết không tìm thấy (ID: deletePostForm)');
+            }
+
+            if (confirmBtn && deleteForm) {
+                confirmBtn.addEventListener('click', function() {
+                    console.log("haha");
+                    deleteForm.submit();
+                });
+            }
+        });
     </script>
 
 
