@@ -17,6 +17,7 @@ Route::apiResource('posts', PostController::class);
 Route::get('/get-phone', [ZaloController::class, 'getPhone']);
 Route::get('/citizens/check-exist/{zalo_id}', action: [CitizenController::class, 'checkUserExist']);
 Route::get('/citizen/info', action: [CitizenController::class, 'InfoCitizen']);
+Route::post('/citizen/info/{zalo_id}', [CitizenController::class, 'updateInfo']);
 
 Route::post('/register-service', [CitizenServiceController::class, 'registerService']);
 Route::get('/citizen-service/status-summary', [CitizenServiceController::class, 'summaryByZaloId']);

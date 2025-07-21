@@ -66,45 +66,60 @@ class CitizenController extends Controller
     }
 
     public function show($zaloId)
-    {
-        $citizen = $this->citizenService->getByZaloId($zaloId);
+{
+    $citizen = $this->citizenService->getByZaloId($zaloId);
 
-        if (!$citizen) {
-            return response()->json(['error' => 'User not found'], 404);
-        }
-
-        return response()->json($citizen);
+    if (!$citizen) {
+        return response()->json(['success' => false, 'error' => 'User not found'], 404);
     }
-    public function update(Request $request, $id)
-    {
-        $citizen = Citizen::findOrFail($id);
 
-        $data = $request->validate([
-            'name' => 'sometimes|max:150',
-            'first_name' => 'sometimes|max:150',
-            'address' => 'nullable|max:255',
-            'identity_number' => 'nullable|max:12',
-            'dob' => 'nullable|date',
-            'dop' => 'nullable|date',
-            'phone_number' => 'nullable|max:20',
-            'last_time_login' => 'nullable|date',
-            'zalo_id' => 'nullable|max:255',
-            'updated_date' => 'nullable|date',
-        ]);
+    return response()->json([
+        'success' => true,
+        'data' => [
+            'id' => $citizen->id,
+            'name' => $citizen->name,
+            'identity_number' => $citizen->identity_number,
+            'phone_number' => $citizen->phone_number,
+            'address' => $citizen->address,
+            'avatar' => $citizen->avatar,
+        ],
+    ]);
+}
+   public function updateInfo(Request $request, $zalo_id)
+{
+  
+    $citizen = Citizen::where('zalo_id', $zalo_id)->firstOrFail();
 
+    $data = $request->validate([
+        'name' => 'sometimes|max:150',
+        'identity_number' => 'nullable|regex:/^\d{12}$/',
+        'phone_number' => 'nullable|max:20',
+        'address' => 'nullable|max:255',
+    ]);
 
+    $data['updated_date'] = Carbon::now()->toDateString();
 
-        $data['updated_date'] = Carbon::now(); // Cập nhật updated_date mỗi lần update
-
-        // Nếu có last_time_login thì cập nhật, nếu không có thì giữ nguyên
-        if ($request->has('last_time_login')) {
-            $data['last_time_login'] = $request->input('last_time_login')->toDateString();
-        }
-
-        $citizen->update($data);
-
-        return response()->json($citizen);
+    if ($request->hasFile('avatar')) {
+        $file = $request->file('avatar');
+        $fileName = time() . '_' . $file->getClientOriginalName();
+        $file->move(public_path('storage/avatars'), $fileName);
+        $data['avatar'] = 'storage/avatars/' . $fileName;
     }
+
+    $citizen->update($data);
+
+    return response()->json([
+        'success' => true,
+        'data' => [
+            'id' => $citizen->id,
+            'name' => $citizen->name,
+            'identity_number' => $citizen->identity_number,
+            'phone_number' => $citizen->phone_number,
+            'address' => $citizen->address,
+            'avatar' => $citizen->avatar,
+        ],
+    ]);
+}
     public function destroy($id)
     {
         return response()->json(['deleted' => $this->citizenService->delete($id)]);
