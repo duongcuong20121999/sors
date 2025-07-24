@@ -17,6 +17,7 @@
         justify-content: flex-start; 
         gap: 16px;
         margin: 0 30px; 
+      
 
     }
 
@@ -49,6 +50,7 @@
 
 <body>
     <header class="header">
+        <img src="{{ asset('frontend/assets/images/background-header.avif') }}" alt="Header Background" class="header-background">
         <div class="container-fluid d-flex justify-content-lg-between">
             <div class="header-left d-flex align-items-center">
                 <div class="logo-wrapper me-3">
@@ -86,7 +88,7 @@
             </div>
         </div>
     </header>
-
+    
     <main>
         <div class="display-kiosk mt-5 mx-4 ">
             <div class="container-fluid">

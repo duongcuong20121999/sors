@@ -3,6 +3,7 @@
 use App\Http\Controllers\API\CitizenServiceController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Frontend\AccountManageController;
+use App\Http\Controllers\Frontend\AllQueueNumberController;
 use App\Http\Controllers\Frontend\DashboardController;
 use App\Http\Controllers\Frontend\PermissionController;
 use App\Http\Controllers\Frontend\PostsController;
@@ -59,10 +60,11 @@ Route::middleware(['auth', 'verified', LogUserActions::class])->group(function (
         Route::post('settings', [SettingController::class, 'store'])->name('settings.store');
 
         Route::resource('service-kiosk-manager', ServiceKioskController::class);
+       
         Route::get('/service-kiosk-manager/get-number/{id}', [ServiceKioskController::class, 'getNumber'])->name('service-kiosk-manager.get-number');
     });
     //System Setting
-
+    Route::resource('service-queue-number', AllQueueNumberController::class);
 
     Route::resource('user-logs', UserLogController::class);
 

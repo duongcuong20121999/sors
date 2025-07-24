@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Frontend;
 
+use App\Events\QueueUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\CitizenService;
 use App\Models\Service;
 use Illuminate\Http\Request;
 use App\Enums\Status;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 
 class DashboardController extends Controller
@@ -268,14 +270,14 @@ class DashboardController extends Controller
 
     public function updateStatus(Request $request)
 {
-    // B1: Tìm yêu cầu
+    // B1: Tìm yêu cầu theo ID
     $citizenService = CitizenService::find($request->id);
 
     if (!$citizenService) {
         return response()->json(['success' => false, 'message' => 'Không tìm thấy yêu cầu']);
     }
 
-    // B2: Cập nhật nếu có
+    // B2: Cập nhật status hoặc thời gian xử lý
     if (!is_null($request->start_processing)) {
         $citizenService->start_procesing = $request->start_processing;
     }
@@ -286,7 +288,37 @@ class DashboardController extends Controller
 
     $citizenService->save();
 
-    // B3: Lấy dữ liệu filter từ request
+    // B3: Lấy lại Service liên quan
+    $service = $citizenService->service;
+
+    if ($service) {
+        // Tính lại prefix theo quầy
+        $prefix = str_pad($service->order, 1, '0', STR_PAD_LEFT) . '00';
+
+        // Lấy lại 3 người đầu tiên đang chờ hoặc đang xử lý hôm nay
+        $citizens = $service->citizenServices()
+            ->whereIn('status', [0, 1])
+            ->where('sequence_number', 'like', $prefix . '%')
+            ->whereDate('appointment_date', Carbon::today())
+            ->orderBy('appointment_date')
+            ->limit(3)
+            ->get()
+            ->values();
+
+        // Tính số còn lại (waiting - không tính người đang xử lý)
+        $totalWaiting = $service->citizenServices()
+            ->where('status', 0)
+            ->where('sequence_number', 'like', $prefix . '%')
+            ->whereDate('appointment_date', Carbon::today())
+            ->count();
+
+        $remaining = $totalWaiting;
+
+        // 🔁 Emit realtime event
+        event(new QueueUpdated($service->id, $citizens, $remaining));
+    }
+
+    // B4: Tiếp tục logic filter danh sách
     $statuses = $request->filled('statuses') ? explode(',', $request->statuses) : [
         Status::New->value,
         Status::Reviewing->value,
@@ -297,7 +329,7 @@ class DashboardController extends Controller
     $serviceCodes = $request->filled('service_codes') ? explode(',', $request->service_codes) : [];
     $citizenName = $request->get('citizen_name');
 
-    // B4: Tạo query danh sách
+    // B5: Tạo query
     $query = CitizenService::with(['citizen', 'service'])
         ->whereIn('status', $statuses);
 
@@ -315,7 +347,7 @@ class DashboardController extends Controller
 
     $citizenServices = $query->orderBy('appointment_date')->get();
 
-    // B5: Render lại HTML danh sách
+    // B6: Render lại view danh sách
     $updatedView = view('partials._citizen_service_list', compact('citizenServices'))->render();
 
     return response()->json([

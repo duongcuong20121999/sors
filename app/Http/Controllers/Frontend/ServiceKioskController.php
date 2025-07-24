@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\frontend;
 
+use App\Events\QueueUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\Citizen;
 //use App\Models\CitizenService;
 use App\Models\Service;
 use App\Models\Setting;
 use App\Services\CitizenServiceService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -28,7 +30,7 @@ class ServiceKioskController extends Controller
     /**
      * Display a listing of the resource.
      */
-     public function index()
+    public function index()
     {
         $setting = Setting::first();
         $urlApiPrint = $setting->url_api_print;
@@ -127,7 +129,7 @@ class ServiceKioskController extends Controller
             $minutes = intval(!$service->process_minutes || $service->process_minutes < 0 ? 0 : $service->process_minutes);
             $appointmentDate->addHours($hours)
                 ->addMinutes($minutes);
-                 // Add 60 minutes buffer
+            // Add 60 minutes buffer
         } else {
             // If unlimited duration, set to next day
             $appointmentDate->addDay();
@@ -165,6 +167,29 @@ class ServiceKioskController extends Controller
 
         $citizenServiceRecord->save();
 
+
+        $prefix = str_pad($service->order, 1, '0', STR_PAD_LEFT) . '00';
+
+        $citizens = $service->citizenServices()
+            ->whereIn('status', [0, 1])
+            ->where('sequence_number', 'like', $prefix . '%')
+            ->whereDate('appointment_date', Carbon::today())
+            ->orderBy('appointment_date')
+            ->limit(3)
+            ->get()
+            ->values();
+
+        $totalWaiting = $service->citizenServices()
+            ->where('status', 0)
+            ->where('sequence_number', 'like', $prefix . '%')
+            ->whereDate('appointment_date', Carbon::today())
+            ->count();
+
+        $remaining = $totalWaiting;
+
+        // 🔁 Emit sự kiện realtime
+        event(new QueueUpdated($service->id, $citizens, $remaining));
+
         //$this->citizenService->update($citizenServiceRecord->id, $citizenServiceRecord);
 
         return response()->json([
@@ -180,5 +205,4 @@ class ServiceKioskController extends Controller
             'count_ahead' =>  $result->count_ahead
         ]);
     }
-
 }

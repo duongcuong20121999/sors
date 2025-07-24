@@ -1,0 +1,98 @@
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+h1 {
+    font-family: 'Barlow', sans-serif;
+}
+
+
+.fs-16 {
+    font-size: 1.2vw !important;
+    font-weight: 600;
+}
+
+
+.fs-40 {
+    font-size: 3vw !important;
+    font-weight: 600 !important ;
+}
+
+
+.fs-24 {
+    font-size: 2vw !important;
+    font-weight: 500;
+    color: #0FF550;
+    background-color: #000000;
+    width: 3vw;
+    height: 3vw;
+    margin: 0 2vw 1.5vw 0vw;
+}
+
+
+.fs-96 {
+    font-size: 7vw !important;
+    font-weight: 500;
+}
+
+.logo-wrapper {
+    background-color: rgba(255, 255, 255, 0.74);
+}
+
+.header-wrapper {
+    background-color: rgba(255, 255, 255, 0.74);
+}
+
+.text-title {
+    color: #28CD56;
+}
+
+
+.counter {
+    font-family: 'Be Vietnam', sans-serif;
+    background-color: rgba(250, 252, 255, 1);
+    padding: 2vw;
+    border-radius: 2vw;
+}
+
+.processing-order {
+    color: #FF0707;
+}
+
+.wait-order {
+    color: #4F4F4F;
+}
+
+.marquee {
+  position: relative;
+  background-color: #D31717;
+}
+
+.marquee-content {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: scroll-loop 25s linear infinite;
+}
+
+@keyframes scroll-loop {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+
+.img-user-order {
+    width: 18vw;
+    height: 21vw;
+}
+
+
+.card-order-title {
+    font-size: 2vw;
+    font-weight: 500;
+}

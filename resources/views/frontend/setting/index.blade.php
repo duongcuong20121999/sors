@@ -66,6 +66,15 @@
                                     </div>
 
                                     <div class="mb-3">
+                                        <label class="mb-1" for="time-update">Thông báo tin tức</label>
+                                        <input type="text" name="news_ticker" id="news-ticker"
+                                            class="form-control system-name-input"
+                                            placeholder="Nhập thông báo tin tức"  
+                                             value="{{ old('news_ticker', $setting->news_ticker ?? '') }}"/>
+                                    </div>
+
+
+                                    <div class="mb-3">
                                         <label class="mb-1" for="">Url đến API in ấn:</label>
                                         <input type="text" name="url_api_print" class="form-control system-name-input"
                                             placeholder="Nhập Url"
