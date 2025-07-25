@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
 use App\Models\Service;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -48,6 +49,43 @@ class AllQueueNumberController extends Controller
     
 
     return view('frontend.service-queue-number.index', compact('services'));
+}
+
+    public function showCounter(Request $request)
+{
+    $service = Service::find($request->service_id);
+    $user = User::find($request->user_id);
+
+    if (!$service || !$user) {
+        abort(404);
+    }
+
+    $prefix = str_pad($service->order, 1, '0', STR_PAD_LEFT) . '00';
+
+    // Lấy bản ghi đang xử lý (status = 1)
+    $processing = $service->citizenServices()
+        ->where('status', 1)
+        ->where('sequence_number', 'like', $prefix . '%')
+        ->whereDate('appointment_date', Carbon::today())
+        ->orderBy('appointment_date')
+        ->first();
+
+    // Lấy người đang chờ đầu tiên (status = 0)
+    $waiting = $service->citizenServices()
+        ->where('status', 0)
+        ->where('sequence_number', 'like', $prefix . '%')
+        ->whereDate('appointment_date', Carbon::today())
+        ->orderBy('appointment_date')
+        ->first();
+
+    // Số người còn lại đang chờ (status = 0)
+    $remaining = $service->citizenServices()
+        ->where('status', 0)
+        ->where('sequence_number', 'like', $prefix . '%')
+        ->whereDate('appointment_date', Carbon::today())
+        ->count();
+
+    return view('frontend.service-queue-number.counter-number', compact('service', 'user', 'processing', 'waiting', 'remaining'));
 }
 
     /**
@@ -97,4 +135,6 @@ class AllQueueNumberController extends Controller
     {
         //
     }
+
+    
 }

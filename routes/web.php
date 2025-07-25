@@ -65,7 +65,7 @@ Route::middleware(['auth', 'verified', LogUserActions::class])->group(function (
     });
     //System Setting
     Route::resource('service-queue-number', AllQueueNumberController::class);
-
+    Route::get('/number-counter', [AllQueueNumberController::class, 'showCounter'])->name('number.counter');
     Route::resource('user-logs', UserLogController::class);
 
 

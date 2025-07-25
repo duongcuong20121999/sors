@@ -30,6 +30,7 @@
                                 'id' => $user->id,
                                 'avatar' => asset($user->avatar ?? 'frontend/assets/images/user.avif'),
                                 'name' => $user->name,
+                                'service_id' => $user->service_id,
                                 'date' => $user->created_at->format('d/m/Y'),
                                 'roles' => $user->roles->pluck('name')->join(', ') ?: 'Chưa có',
                                 'is_active' => $user->is_active,
@@ -41,13 +42,14 @@
 
                     <div class="footer-content mt-auto mb-1 justify-content-center flex-lg-wrap">
                         <!-- filter the news -->
-                        <div class="footer-choose-news mt-1 mb-1 mx-auto" data-bs-toggle="dropdown" >
+                        <div class="footer-choose-news mt-1 mb-1 mx-auto" data-bs-toggle="dropdown">
                             <p id="footer-selected-news" class="mb-0">
                                 {{ $currentRole !== 'all' ? $roles->where('id', $currentRole)->first()->name : 'Tất cả' }}
                             </p>
 
                             <div class="dropdown-footer ms-auto dropup">
-                                <a aria-label="dropdown footer" class="btn btn-outline-secondary p-2 d-flex align-items-center" href="#"
+                                <a aria-label="dropdown footer"
+                                    class="btn btn-outline-secondary p-2 d-flex align-items-center" href="#"
                                     role="button" id="dropdownMenuButton">
                                     <ion-icon name="chevron-down-outline" id="dropdown-icon"></ion-icon>
                                 </a>
@@ -96,11 +98,13 @@
 
                         <div class="mt-3">
                             <label for="account1" class="mb-2">Họ và tên:</label>
-                            <input id="account1" type="text" name="name" class="form-control" value="{{ old('name') }}">
+                            <input id="account1" type="text" name="name" class="form-control"
+                                value="{{ old('name') }}">
                         </div>
                         <div class="mt-3">
-                            <label  for="account2" class="mb-2">Email:</label>
-                            <input id="account2" type="text" autocomplete="username" name="email" class="form-control" value="{{ old('email') }}">
+                            <label for="account2" class="mb-2">Email:</label>
+                            <input id="account2" type="text" autocomplete="username" name="email" class="form-control"
+                                value="{{ old('email') }}">
                         </div>
                         <div class="mt-3">
                             <label for="account3" class="mb-2">Zalo ID:</label>
@@ -109,16 +113,18 @@
                         </div>
                         <div class="mt-3">
                             <label for="account4" class="mb-2">Mật khẩu:</label>
-                            <input id="account4" type="password" autocomplete="new-password" name="password" class="form-control">
+                            <input id="account4" type="password" autocomplete="new-password" name="password"
+                                class="form-control">
                         </div>
                         <div class="mt-3">
                             <label for="account5" class="mb-2">Nhập lại mật khẩu:</label>
-                            <input id="account5" type="password" autocomplete="new-password" name="cf_password" class="form-control">
+                            <input id="account5" type="password" autocomplete="new-password" name="cf_password"
+                                class="form-control">
                         </div>
                         <div class="mt-3">
                             <label for="account6" class="mb-2">Thông tin ghi chú:</label>
-                            <input id="account6" type="text" name="description_service" class="form-control" id="service-description"
-                                value="{{ old('description_service') }}">
+                            <input id="account6" type="text" name="description_service" class="form-control"
+                                id="service-description" value="{{ old('description_service') }}">
                         </div>
                         <div class="mt-3">
                             <p class="mb-2">Chọn vai trò:</p>
@@ -131,12 +137,12 @@
                                                     style="width: 48%;">
                                                     <input type="checkbox" name="roles[]" id="{{ $role->name }}"
                                                         value="{{ $role->name }}"
-                                                        {{ in_array($role->name, old('roles', [])) ? 'checked' : '' }}>
+                                                        {{ in_array($role->name, old('roles', [])) ? 'checked' : '' }}
+                                                        onchange="toggleSelector(this)">
                                                     <label for="{{ $role->name }}">{{ $role->name }}</label>
                                                 </div>
                                             @endforeach
 
-                                            {{-- Nếu là số lẻ thì chèn 1 ô trống để giữ layout --}}
                                             @if ($rolePair->count() === 1)
                                                 <div style="width: 48%;"></div>
                                             @endif
@@ -145,6 +151,21 @@
                                 </div>
                             </div>
                         </div>
+
+                        {{-- Vùng chứa select --}}
+                        <div id="selector-container" class="mt-3" style="display: none; padding-bottom: 100px;">
+                            <label class="mb-2" for="service_id">Chọn quầy dịch vụ:</label>
+                            <select id="service_id" name="service_id" class="form-select" style="width: 50%;">
+                                <option value="">-- Chọn quầy --</option>
+                                @foreach ($services as $service)
+                                    <option value="{{ $service->id }}"
+                                        {{ old('service_id', $user_data->service_id ?? '') == $service->id ? 'selected' : '' }}>
+                                        Quầy {{ $service->order }}: {{ $service->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
                         <div class="mb-5">
                             <p class="mb-2 mt-3">Trạng thái:</p>
                             <div class="publish-articles gap-3 d-flex content-checkbox ms-5 mt-3">
@@ -167,7 +188,7 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        let currentRole = 'all'; 
+        let currentRole = 'all';
 
         $(document).on('click', '.dropdown-item', function(e) {
             e.preventDefault();
@@ -267,6 +288,23 @@
                 $('#footer-selected-news').text($(`#dropdown-list-footer a[data-group="${currentRole}"]`).text());
             } else {
                 $('#footer-selected-news').text('Chọn nhóm quyền');
+            }
+        });
+
+        function toggleSelector(checkbox) {
+            const container = document.getElementById('selector-container');
+            if (checkbox.value === "Nhân viên 1 cửa" && checkbox.checked) {
+                container.style.display = "block";
+            } else if (checkbox.value === "Nhân viên 1 cửa" && !checkbox.checked) {
+                container.style.display = "none";
+            }
+        }
+
+        // Nếu muốn giữ lại dropdown khi reload (khi form bị lỗi validate chẳng hạn)
+        window.addEventListener('DOMContentLoaded', function() {
+            const checkbox = document.querySelector('input[type="checkbox"][value="Nhân viên 1 cửa"]');
+            if (checkbox && checkbox.checked) {
+                document.getElementById('selector-container').style.display = "block";
             }
         });
     </script>

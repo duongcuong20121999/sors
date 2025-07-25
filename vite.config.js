@@ -11,6 +11,7 @@ export default defineConfig({
                 'resources/js/router.js',
                 'resources/js/filter-pagination.js',
                 'resources/css/app.css',
+                'resources/css/style.css',
                 'resources/js/app.js'
             ],
             refresh: true,

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
+use App\Models\Service;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -17,7 +18,6 @@ class AccountManageController extends Controller
      */
     public function index(Request $request)
     {
-
         $currentRole = $request->input('role', 'all');
         $currentPage = $request->input('page', 1);
 
@@ -30,11 +30,10 @@ class AccountManageController extends Controller
 
         $users = $users->paginate(10, ['*'], 'page', $currentPage);
 
-
         $roles = Role::all();
+        $services = Service::where('is_active', true)->orderBy('order')->get(); 
 
-
-        return view('frontend.account-manage.index', compact('users', 'roles', 'currentRole', 'currentPage'));
+        return view('frontend.account-manage.index', compact('users', 'roles', 'currentRole', 'currentPage', 'services'));
     }
 
     /**
@@ -42,7 +41,7 @@ class AccountManageController extends Controller
      */
     public function create(Request $request)
     {
-        $currentRole = $request->input('role', 'all');
+         $currentRole = $request->input('role', 'all');
         $currentPage = $request->input('page', 1);
 
         $users = User::with('roles');
@@ -54,10 +53,10 @@ class AccountManageController extends Controller
 
         $users = $users->paginate(10, ['*'], 'page', $currentPage);
 
-
         $roles = Role::all();
+        $services = Service::where('is_active', true)->orderBy('order')->get(); 
 
-        return view('frontend.account-manage.create', compact('users', 'roles', 'currentRole', 'currentPage'));
+        return view('frontend.account-manage.create', compact('users', 'roles', 'currentRole', 'currentPage', 'services'));
     }
 
     /**
@@ -65,8 +64,7 @@ class AccountManageController extends Controller
      */
     public function store(Request $request)
     {
-
-        // dd($request->has('is_active'));
+        // Validate dữ liệu
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
@@ -75,6 +73,7 @@ class AccountManageController extends Controller
             'zalo_id' => 'nullable|string|max:50',
             'description_service' => 'nullable|string',
             'roles' => 'nullable|array',
+            'service_id' => 'nullable|exists:services,id',
         ], [
             'name.required' => 'Họ và tên không được để trống',
             'email.required' => 'Email không được để trống',
@@ -90,19 +89,19 @@ class AccountManageController extends Controller
                 ->with('error', 'Vui lòng kiểm tra lại các trường bắt buộc.');
         }
 
-
+        // Xử lý avatar nếu có
         $avatarPath = null;
         if ($request->hasFile('avatar')) {
             $file = $request->file('avatar');
             $extension = $file->getClientOriginalExtension();
             $filename = time() . '_' . pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME) . '.' . $extension;
-
-            $file->move(public_path('storage/avatar_user'), $filename); // Ví dụ: lưu vào /storage/avatar
-
+            $file->move(public_path('storage/avatar_user'), $filename);
             $avatarPath = 'storage/avatar_user/' . $filename;
         }
 
+        // dd($request->service_id);
 
+        // Tạo user mới
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -111,14 +110,15 @@ class AccountManageController extends Controller
             'description_service' => $request->description_service,
             'avatar' => $avatarPath,
             'is_active' => $request->has('is_active') ? 1 : 0,
+            'service_id' => $request->service_id, // ✅ lưu quầy dịch vụ vào user
         ]);
 
-
+        // Gán vai trò
         if ($request->has('roles')) {
             $user->assignRole($request->roles);
         }
 
-
+        // Thông báo thành công
         $notification = [
             'message' => 'Tạo tài khoản thành công!',
             'alert-type' => 'success',
@@ -126,7 +126,6 @@ class AccountManageController extends Controller
 
         return redirect()->route('accounts-manager.index')->with($notification);
     }
-
     /**
      * Display the specified resource.
      */
@@ -140,6 +139,7 @@ class AccountManageController extends Controller
      */
     public function edit(string $id, Request $request)
     {
+
         $user_data = User::with('roles')->findOrFail($id);
         $currentRole = $request->input('role', 'all');
         $currentPage = $request->input('page', 1);
@@ -153,8 +153,9 @@ class AccountManageController extends Controller
         $users = $users->paginate(10, ['*'], 'page', $currentPage);
 
         $roles = Role::all();
+        $services = Service::where('is_active', true)->orderBy('order')->get(); // lấy các dịch vụ đang hoạt động
 
-        return view('frontend.account-manage.edit', compact('roles', 'users', 'user_data', 'currentRole', 'currentPage'));
+        return view('frontend.account-manage.edit', compact('roles', 'users', 'user_data', 'currentRole', 'currentPage', 'services'));
     }
 
     /**
@@ -164,15 +165,16 @@ class AccountManageController extends Controller
     {
         $user = User::findOrFail($id);
 
-
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'password' => 'nullable|min:6',
             'cf_password' => 'same:password',
+            'service_id' => 'nullable|uuid|exists:services,id', // kiểm tra dịch vụ
         ], [
             'name.required' => 'Tên không được để trống',
             'password.min' => 'Mật khẩu tối thiểu 6 ký tự',
             'cf_password.same' => 'Mật khẩu xác nhận không khớp',
+            'service_id.exists' => 'Dịch vụ không tồn tại',
         ]);
 
         if ($validator->fails()) {
@@ -182,16 +184,22 @@ class AccountManageController extends Controller
                 ->with('error', 'Vui lòng kiểm tra lại các trường bắt buộc.');
         }
 
-
         $user->name = $request->input('name');
         $user->description_service = $request->input('description_service');
         $user->is_active = $request->has('is_active');
 
+        $roleIds = $request->input('roles', []);
+        $roleNames = Role::whereIn('id', $roleIds)->pluck('name')->toArray();
+        // dd($roleNames );
+        if (in_array('Nhân viên 1 cửa', $roleNames)) {
+            $user->service_id = $request->input('service_id');
+        } else {
+            $user->service_id = null;
+        }
 
         if ($request->filled('password')) {
             $user->password = Hash::make($request->input('password'));
         }
-
 
         if ($request->hasFile('avatar')) {
             $file = $request->file('avatar');
@@ -202,7 +210,6 @@ class AccountManageController extends Controller
 
         $user->save();
 
-
         if ($request->has('roles')) {
             $roleIds = $request->input('roles');
             $roleNames = Role::whereIn('id', $roleIds)->pluck('name')->toArray();
@@ -211,13 +218,10 @@ class AccountManageController extends Controller
             $user->syncRoles([]);
         }
 
-        $notification = [
+        return redirect()->route('accounts-manager.edit', $user->id)->with([
             'message' => 'Cập nhật tài khoản thành công!',
             'alert-type' => 'success',
-        ];
-
-        return redirect()->route('accounts-manager.index')
-            ->with($notification);
+        ]);
     }
 
     /**

@@ -22,6 +22,7 @@
                                 'id' => $user->id,
                                 'avatar' => asset($user->avatar ?? 'frontend/assets/images/user.avif'),
                                 'name' => $user->name,
+                                'service_id' => $user->service_id,
                                 'date' => $user->created_at->format('d/m/Y'),
                                 'roles' => $user->roles->pluck('name')->join(', ') ?: 'Chưa có',
                                 'is_active' => $user->is_active,
@@ -40,7 +41,8 @@
                             </p>
 
                             <div class="dropdown-footer ms-auto dropup">
-                                <a aria-label="dropdown footer" class="btn btn-outline-secondary p-2 d-flex align-items-center" href="#"
+                                <a aria-label="dropdown footer"
+                                    class="btn btn-outline-secondary p-2 d-flex align-items-center" href="#"
                                     role="button" id="dropdownMenuButton">
                                     <ion-icon name="chevron-down-outline" id="dropdown-icon"></ion-icon>
                                 </a>
@@ -86,32 +88,37 @@
                         <input type="hidden" name="id_user" value="{{ $user_data->id ?? '' }}">
 
                         <div class="select-image-news d-flex align-items-center">
-                            <img id="selected-image-account" src="{{ old('avatar', $user_data->avatar ? asset($user_data->avatar) : asset('frontend/assets/images/user.avif')) }}" alt=""/>
+                            <img id="selected-image-account"
+                                src="{{ old('avatar', $user_data->avatar ? asset($user_data->avatar) : asset('frontend/assets/images/user.avif')) }}"
+                                alt="" />
                             <input type="file" name="avatar" id="file-input-account" style="display: none;">
                             <a id="choose-image-btn-account">Chọn ảnh đại diện</a>
                         </div>
                         <div class="mt-3">
                             <label for="account1" class="mb-2">Họ và tên:</label>
-                            <input id="account1" type="text" name="name" value="{{ old('name', $user_data->name ?? '') }}"
-                                class="form-control">
+                            <input id="account1" type="text" name="name"
+                                value="{{ old('name', $user_data->name ?? '') }}" class="form-control">
                         </div>
                         <div class="mt-3">
                             <label for="account2" class="mb-2">Email:</label>
-                            <input id="account2" type="text" autocomplete="username" name="email" value="{{ old('email', $user_data->email ?? '') }}"
-                                class="form-control" disabled>
+                            <input id="account2" type="text" autocomplete="username" name="email"
+                                value="{{ old('email', $user_data->email ?? '') }}" class="form-control" disabled>
                         </div>
                         <div class="mt-3">
-                            <label  for="account3" class="mb-2">Zalo ID:</label>
-                            <input id="account3" type="text" name="zalo_id" value="{{ old('email', $user_data->zalo_id ?? '') }}"
-                                class="form-control" disabled id="zalo-id">
+                            <label for="account3" class="mb-2">Zalo ID:</label>
+                            <input id="account3" type="text" name="zalo_id"
+                                value="{{ old('email', $user_data->zalo_id ?? '') }}" class="form-control" disabled
+                                id="zalo-id">
                         </div>
                         <div class="mt-3">
                             <label for="account4" class="mb-2">Mật khẩu:</label>
-                            <input id="account4" type="password" autocomplete="new-password" name="password" class="form-control">
+                            <input id="account4" type="password" autocomplete="new-password" name="password"
+                                class="form-control">
                         </div>
                         <div class="mt-3">
                             <label for="account5" class="mb-2">Nhập lại mật khẩu:</label>
-                            <input id="account5" type="password" autocomplete="new-password" name="cf_password" class="form-control">
+                            <input id="account5" type="password" autocomplete="new-password" name="cf_password"
+                                class="form-control">
                         </div>
                         <div class="mt-3">
                             <label for="account6" class="mb-2">Thông tin ghi chú:</label>
@@ -129,8 +136,9 @@
                                                 <div class="publish-articles d-flex align-items-center gap-3"
                                                     style="width: 48%;">
                                                     <input type="checkbox" name="roles[]" id="{{ $role->name }}"
-                                                        value="{{ $role->id }}"
-                                                        {{ (is_array(old('roles')) ? in_array($role->id, old('roles')) : $user_data->roles->pluck('id')->contains($role->id)) ? 'checked' : '' }}>
+                                                        value="{{ $role->id }}" data-role-name="{{ $role->name }}"
+                                                        onchange="toggleSelector(this, '{{ $role->name }}')"
+                                                        {{ in_array($role->id, old('roles', $user_data->roles->pluck('id')->toArray())) ? 'checked' : '' }}>
                                                     <label for="{{ $role->name }}">{{ $role->name }}</label>
                                                 </div>
                                             @endforeach
@@ -142,6 +150,20 @@
                                     @endforeach
                                 </div>
                             </div>
+                        </div>
+
+                        {{-- Vùng chứa select --}}
+                        <div id="selector-container" class="mt-3" style="display: none; padding-bottom: 100px;">
+                            <label class="mb-2" for="service_id">Chọn quầy dịch vụ:</label>
+                            <select id="service_id" name="service_id" class="form-select" style="width: 50%;">
+                                <option value="">-- Chọn quầy --</option>
+                                @foreach ($services as $service)
+                                    <option value="{{ $service->id }}"
+                                        {{ old('service_id', $user_data->service_id ?? '') == $service->id ? 'selected' : '' }}>
+                                        Quầy {{ $service->order }}: {{ $service->name }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
                         <div class="mb-5">
                             <p class="mb-2 mt-3">Trạng thái:</p>
@@ -249,6 +271,26 @@
                         document.getElementById('selected-image-account').src = e.target.result;
                     };
                     reader.readAsDataURL(file);
+                }
+            });
+        });
+
+        function toggleSelector(checkbox, roleName) {
+            const container = document.getElementById('selector-container');
+            if (!container) return;
+
+            if (roleName === "Nhân viên 1 cửa") {
+                container.style.display = checkbox.checked ? "block" : "none";
+            }
+        }
+
+        // Nếu muốn giữ lại dropdown khi reload (khi form bị lỗi validate chẳng hạn)
+        window.addEventListener('DOMContentLoaded', function() {
+            const checkboxes = document.querySelectorAll(
+            'input[type="checkbox"][data-role-name="Nhân viên 1 cửa"]');
+            checkboxes.forEach(function(checkbox) {
+                if (checkbox.checked) {
+                    document.getElementById('selector-container').style.display = "block";
                 }
             });
         });

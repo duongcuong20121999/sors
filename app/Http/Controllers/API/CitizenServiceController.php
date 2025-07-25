@@ -47,37 +47,37 @@ class CitizenServiceController extends Controller
         $endOfDay = now('Asia/Ho_Chi_Minh')->endOfDay()->timezone('UTC');
 
         // Check 1: Citizen đã đăng ký dịch vụ này hôm nay và chưa hoàn thành/chưa đóng
-        // $existingRegistration = CitizenService::where('citizen_id', $citizen->id)
-        //     ->where('service_id', $service->id)
-        //     ->whereBetween('created_at', [$startOfDay, $endOfDay])
-        //     ->whereIn('status', [
-        //         Status::New->value,
-        //         Status::Reviewing->value,
-        //         Status::InProgress->value
-        //     ])
-        //     ->first();
+        $existingRegistration = CitizenService::where('citizen_id', $citizen->id)
+            ->where('service_id', $service->id)
+            ->whereBetween('created_at', [$startOfDay, $endOfDay])
+            ->whereIn('status', [
+                Status::New->value,
+                Status::Reviewing->value,
+                Status::InProgress->value
+            ])
+            ->first();
 
-        // if ($existingRegistration) {
-        //     return response()->json([
-        //         'success' => false,
-        //         'message' => 'Hệ thống ghi nhận quý công dân đã có một lượt đăng ký dịch vụ này đang được xử lý trong ngày hôm nay. Vui lòng chờ hoàn tất hoặc đăng ký lại vào ngày hôm sau!',
-        //         'data' => null
-        //     ], 200);
-        // }
+        if ($existingRegistration) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Hệ thống ghi nhận quý công dân đã có một lượt đăng ký dịch vụ này đang được xử lý trong ngày hôm nay. Vui lòng chờ hoàn tất hoặc đăng ký lại vào ngày hôm sau!',
+                'data' => null
+            ], 200);
+        }
 
-        // // Check 2: Citizen đã đăng ký bao nhiêu dịch vụ khác nhau hôm nay
-        // $countServicesToday = CitizenService::where('citizen_id', $citizen->id)
-        //     ->whereBetween('created_at', [$startOfDay, $endOfDay])
-        //     ->distinct('service_id')
-        //     ->count('service_id');
+        // Check 2: Citizen đã đăng ký bao nhiêu dịch vụ khác nhau hôm nay
+        $countServicesToday = CitizenService::where('citizen_id', $citizen->id)
+            ->whereBetween('created_at', [$startOfDay, $endOfDay])
+            ->distinct('service_id')
+            ->count('service_id');
 
-        // if ($countServicesToday >= 3) {
-        //     return response()->json([
-        //         'success' => false,
-        //         'message' => 'Không thể thực hiện đăng ký. Theo quy định, mỗi công dân chỉ được phép đăng ký tối đa 03 dịch vụ mỗi ngày!',
-        //         'data' => null
-        //     ], 200);
-        // }
+        if ($countServicesToday >= 3) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không thể thực hiện đăng ký. Theo quy định, mỗi công dân chỉ được phép đăng ký tối đa 03 dịch vụ mỗi ngày!',
+                'data' => null
+            ], 200);
+        }
 
         // Calculate appointment date based on service process time
         $now = now();
@@ -197,7 +197,7 @@ class CitizenServiceController extends Controller
                 $query->where('zalo_id', $zaloId);
             })
             ->whereIn('status', $statusValues)
-            ->orderByDesc('created_date') 
+            ->orderByDesc('created_date')
             ->get();
 
         $result = $records->map(function ($record) {
@@ -379,6 +379,31 @@ class CitizenServiceController extends Controller
             'success' => true,
             'citizen_service_id' => $cs->id,
             'files' => $files
+        ]);
+    }
+
+    public function deleteFile($id)
+    {
+        $file = CitizenServiceFile::find($id);
+
+        if (!$file) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không tìm thấy file.'
+            ], 404);
+        }
+
+        // Xóa file vật lý trong storage
+        if (Storage::disk('public')->exists($file->file_path)) {
+            Storage::disk('public')->delete($file->file_path);
+        }
+
+        // Xóa bản ghi trong DB
+        $file->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Xoá file thành công.'
         ]);
     }
 }

@@ -20,6 +20,7 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'service_id',
         'email',
         'password',
         'avatar',
@@ -50,4 +51,9 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function service()
+{
+    return $this->belongsTo(Service::class);
+}
 }

@@ -269,92 +269,124 @@ class DashboardController extends Controller
     }
 
     public function updateStatus(Request $request)
-{
-    // B1: Tìm yêu cầu theo ID
-    $citizenService = CitizenService::find($request->id);
+    {
+        // B1: Tìm yêu cầu theo ID
+        $citizenService = CitizenService::find($request->id);
 
-    if (!$citizenService) {
-        return response()->json(['success' => false, 'message' => 'Không tìm thấy yêu cầu']);
+        if (!$citizenService) {
+            return response()->json(['success' => false, 'message' => 'Không tìm thấy yêu cầu']);
+        }
+
+        // B2: Cập nhật status hoặc thời gian xử lý
+        if (!is_null($request->start_processing)) {
+            $citizenService->start_procesing = $request->start_processing;
+        }
+
+        if (!is_null($request->status)) {
+            $citizenService->status = $request->status;
+        }
+
+        $citizenService->save();
+
+        $service = $citizenService->service;
+        if ($service) {
+            $this->broadcastCounterQueue($service);
+        }
+
+        // B3: Lấy lại Service liên quan
+        $service = $citizenService->service;
+
+        if ($service) {
+            // Tính lại prefix theo quầy
+            $prefix = str_pad($service->order, 1, '0', STR_PAD_LEFT) . '00';
+
+            // Lấy lại 3 người đầu tiên đang chờ hoặc đang xử lý hôm nay
+            $citizens = $service->citizenServices()
+                ->whereIn('status', [0, 1])
+                ->where('sequence_number', 'like', $prefix . '%')
+                ->whereDate('appointment_date', Carbon::today())
+                ->orderBy('appointment_date')
+                ->limit(3)
+                ->get()
+                ->values();
+
+            // Tính số còn lại (waiting - không tính người đang xử lý)
+            $totalWaiting = $service->citizenServices()
+                ->where('status', 0)
+                ->where('sequence_number', 'like', $prefix . '%')
+                ->whereDate('appointment_date', Carbon::today())
+                ->count();
+
+            $remaining = $totalWaiting;
+
+            // 🔁 Emit realtime event
+            event(new QueueUpdated($service->id, $citizens, $remaining));
+        }
+
+        // B4: Tiếp tục logic filter danh sách
+        $statuses = $request->filled('statuses') ? explode(',', $request->statuses) : [
+            Status::New->value,
+            Status::Reviewing->value,
+            Status::InProgress->value,
+            Status::Done->value
+        ];
+
+        $serviceCodes = $request->filled('service_codes') ? explode(',', $request->service_codes) : [];
+        $citizenName = $request->get('citizen_name');
+
+        // B5: Tạo query
+        $query = CitizenService::with(['citizen', 'service'])
+            ->whereIn('status', $statuses);
+
+        if (!empty($serviceCodes)) {
+            $query->whereHas('service', function ($q) use ($serviceCodes) {
+                $q->whereIn('code', $serviceCodes);
+            });
+        }
+
+        if (!empty($citizenName)) {
+            $query->whereHas('citizen', function ($q) use ($citizenName) {
+                $q->where('name', 'like', '%' . $citizenName . '%');
+            });
+        }
+
+        $citizenServices = $query->orderBy('appointment_date')->get();
+
+        // B6: Render lại view danh sách
+        $updatedView = view('partials._citizen_service_list', compact('citizenServices'))->render();
+
+        return response()->json([
+            'success' => true,
+            'updatedView' => $updatedView
+        ]);
     }
 
-    // B2: Cập nhật status hoặc thời gian xử lý
-    if (!is_null($request->start_processing)) {
-        $citizenService->start_procesing = $request->start_processing;
-    }
+    private function broadcastCounterQueue(Service $service)
+    {
+        $processing = $service->citizenServices()
+            ->where('status', 1)
+            ->whereDate('appointment_date', \Carbon\Carbon::today())
+            ->latest('updated_date')
+            ->first();
 
-    if (!is_null($request->status)) {
-        $citizenService->status = $request->status;
-    }
-
-    $citizenService->save();
-
-    // B3: Lấy lại Service liên quan
-    $service = $citizenService->service;
-
-    if ($service) {
-        // Tính lại prefix theo quầy
-        $prefix = str_pad($service->order, 1, '0', STR_PAD_LEFT) . '00';
-
-        // Lấy lại 3 người đầu tiên đang chờ hoặc đang xử lý hôm nay
-        $citizens = $service->citizenServices()
-            ->whereIn('status', [0, 1])
-            ->where('sequence_number', 'like', $prefix . '%')
-            ->whereDate('appointment_date', Carbon::today())
-            ->orderBy('appointment_date')
-            ->limit(3)
-            ->get()
-            ->values();
-
-        // Tính số còn lại (waiting - không tính người đang xử lý)
-        $totalWaiting = $service->citizenServices()
+        $waiting = $service->citizenServices()
             ->where('status', 0)
-            ->where('sequence_number', 'like', $prefix . '%')
-            ->whereDate('appointment_date', Carbon::today())
+            ->whereDate('appointment_date', \Carbon\Carbon::today())
+            ->orderBy('appointment_date')
+            ->first();
+
+        $remaining = $service->citizenServices()
+            ->where('status', 0)
+            ->whereDate('appointment_date', \Carbon\Carbon::today())
             ->count();
 
-        $remaining = $totalWaiting;
-
-        // 🔁 Emit realtime event
-        event(new QueueUpdated($service->id, $citizens, $remaining));
+        event(new \App\Events\CounterUpdated(
+            $service->id,
+            optional($processing)->toArray(),
+            optional($waiting)->toArray(),
+            $remaining
+        ));
     }
-
-    // B4: Tiếp tục logic filter danh sách
-    $statuses = $request->filled('statuses') ? explode(',', $request->statuses) : [
-        Status::New->value,
-        Status::Reviewing->value,
-        Status::InProgress->value,
-        Status::Done->value
-    ];
-
-    $serviceCodes = $request->filled('service_codes') ? explode(',', $request->service_codes) : [];
-    $citizenName = $request->get('citizen_name');
-
-    // B5: Tạo query
-    $query = CitizenService::with(['citizen', 'service'])
-        ->whereIn('status', $statuses);
-
-    if (!empty($serviceCodes)) {
-        $query->whereHas('service', function ($q) use ($serviceCodes) {
-            $q->whereIn('code', $serviceCodes);
-        });
-    }
-
-    if (!empty($citizenName)) {
-        $query->whereHas('citizen', function ($q) use ($citizenName) {
-            $q->where('name', 'like', '%' . $citizenName . '%');
-        });
-    }
-
-    $citizenServices = $query->orderBy('appointment_date')->get();
-
-    // B6: Render lại view danh sách
-    $updatedView = view('partials._citizen_service_list', compact('citizenServices'))->render();
-
-    return response()->json([
-        'success' => true,
-        'updatedView' => $updatedView
-    ]);
-}
 
     public function getReviewedTickets()
     {

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\frontend;
 
+use App\Events\CounterUpdated;
 use App\Events\QueueUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\Citizen;
@@ -190,7 +191,7 @@ class ServiceKioskController extends Controller
         // 🔁 Emit sự kiện realtime
         event(new QueueUpdated($service->id, $citizens, $remaining));
 
-        //$this->citizenService->update($citizenServiceRecord->id, $citizenServiceRecord);
+        $this->broadcastCounterQueue($service);
 
         return response()->json([
             'success' => true,
@@ -204,5 +205,36 @@ class ServiceKioskController extends Controller
             'qr_code_url' => asset('storage/' . $fileName),
             'count_ahead' =>  $result->count_ahead
         ]);
+    }
+
+    public function broadcastCounterQueue($service)
+    {
+        // Lấy người đang xử lý (status = 1)
+        $processing = $service->citizenServices()
+            ->where('status', 1)
+            ->whereDate('appointment_date', Carbon::today())
+            ->latest('updated_date')
+            ->first();
+
+        // Lấy người đang chờ kế tiếp (status = 0)
+        $waiting = $service->citizenServices()
+            ->where('status', 0)
+            ->whereDate('appointment_date', Carbon::today())
+            ->orderBy('appointment_date')
+            ->first();
+
+        // Số người còn lại (status = 0)
+        $remaining = $service->citizenServices()
+            ->where('status', 0)
+            ->whereDate('appointment_date', Carbon::today())
+            ->count();
+
+        // Emit sự kiện CounterUpdated
+        event(new CounterUpdated(
+            $service->id,
+            optional($processing)->toArray(),
+            optional($waiting)->toArray(),
+            $remaining
+        ));
     }
 }
