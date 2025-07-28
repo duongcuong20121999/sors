@@ -163,14 +163,23 @@ class DashboardController extends Controller
 
         if ($request->status == 0 || $cs->status == 1) {
             $cs->update(['status' => 2]);
+            $this->updateQueueInfo($cs->service);
+            $this->broadcastCounterQueue($cs->service);
+
         }
 
         if ($request->status == 2 && $request->cf_completed == "on") {
             $cs->update(['status' => 3]);
+            $this->updateQueueInfo($cs->service);
+            $this->broadcastCounterQueue($cs->service);
+
         }
 
         if ($request->status == 3 && $request->cf_cancel == "on") {
             $cs->update(['status' => 4]);
+            $this->updateQueueInfo($cs->service);
+            $this->broadcastCounterQueue($cs->service);
+
         }
 
         // Lấy lại danh sách filter
@@ -235,6 +244,12 @@ class DashboardController extends Controller
 
         $service->save();
 
+        if ($service->service) {
+            $this->updateQueueInfo($service->service);
+            $this->broadcastCounterQueue($service->service);
+
+        }
+
 
         $query = CitizenService::with(['citizen', 'service'])->whereIn('status', [
             Status::New->value,
@@ -298,29 +313,7 @@ class DashboardController extends Controller
 
         if ($service) {
             // Tính lại prefix theo quầy
-            $prefix = str_pad($service->order, 1, '0', STR_PAD_LEFT) . '00';
-
-            // Lấy lại 3 người đầu tiên đang chờ hoặc đang xử lý hôm nay
-            $citizens = $service->citizenServices()
-                ->whereIn('status', [0, 1])
-                ->where('sequence_number', 'like', $prefix . '%')
-                ->whereDate('appointment_date', Carbon::today())
-                ->orderBy('appointment_date')
-                ->limit(3)
-                ->get()
-                ->values();
-
-            // Tính số còn lại (waiting - không tính người đang xử lý)
-            $totalWaiting = $service->citizenServices()
-                ->where('status', 0)
-                ->where('sequence_number', 'like', $prefix . '%')
-                ->whereDate('appointment_date', Carbon::today())
-                ->count();
-
-            $remaining = $totalWaiting;
-
-            // 🔁 Emit realtime event
-            event(new QueueUpdated($service->id, $citizens, $remaining));
+            $this->updateQueueInfo($service);
         }
 
         // B4: Tiếp tục logic filter danh sách
@@ -361,22 +354,57 @@ class DashboardController extends Controller
         ]);
     }
 
+    private function updateQueueInfo(Service $service)
+    {
+
+        $prefix = str_pad($service->order, 1, '0', STR_PAD_LEFT) . '00';
+
+
+        $citizens = $service->citizenServices()
+            ->whereIn('status', [
+                Status::New->value,
+                Status::Reviewing->value,
+                Status::InProgress->value
+            ])
+            ->where('sequence_number', 'like', $prefix . '%')
+            ->whereDate('appointment_date', Carbon::today())
+            ->orderBy('appointment_date')
+            ->limit(3)
+            ->get()
+            ->values();
+
+
+        $totalWaiting = $service->citizenServices()
+            ->whereIn('status', [
+                Status::New->value,
+                Status::Reviewing->value,
+            ])
+            ->where('sequence_number', 'like', $prefix . '%')
+            ->whereDate('appointment_date', Carbon::today())
+            ->count();
+
+        $remaining = $totalWaiting;
+
+
+        event(new QueueUpdated($service->id, $citizens, $remaining));
+    }
+
     private function broadcastCounterQueue(Service $service)
     {
         $processing = $service->citizenServices()
-            ->where('status', 1)
+            ->where('status', 2)
             ->whereDate('appointment_date', \Carbon\Carbon::today())
             ->latest('updated_date')
             ->first();
 
         $waiting = $service->citizenServices()
-            ->where('status', 0)
+            ->whereIn('status', [0,1])
             ->whereDate('appointment_date', \Carbon\Carbon::today())
             ->orderBy('appointment_date')
             ->first();
 
         $remaining = $service->citizenServices()
-            ->where('status', 0)
+            ->whereIn('status', [0,1])
             ->whereDate('appointment_date', \Carbon\Carbon::today())
             ->count();
 
@@ -425,7 +453,21 @@ class DashboardController extends Controller
             ]);
         }
 
+
         CitizenService::whereIn('id', $ids)->update(['status' => 6]);
+
+
+        $updatedServices = CitizenService::with('service')->whereIn('id', $ids)->get();
+
+
+        $uniqueServices = $updatedServices->pluck('service')->filter()->unique('id');
+
+        foreach ($uniqueServices as $service) {
+            $this->updateQueueInfo($service);
+            $this->broadcastCounterQueue($service);
+
+        }
+
 
         $citizenServices = CitizenService::with(['citizen', 'service'])
             ->whereIn('status', [
@@ -436,8 +478,6 @@ class DashboardController extends Controller
             ])
             ->orderBy('appointment_date')
             ->get();
-
-
 
         $updatedListHtml = view('partials._citizen_service_list', compact('citizenServices'))->render();
 

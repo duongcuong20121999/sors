@@ -22,21 +22,22 @@ class AllQueueNumberController extends Controller
         ->get()
         ->map(function ($service) {
             $prefix = str_pad($service->order, 1, '0', STR_PAD_LEFT) . '00';
-         
             $citizens = $service->citizenServices()
-                ->whereIn('status', [0, 1])
+                ->whereIn('status', [0, 1, 2])
                 ->where('sequence_number', 'like', $prefix . '%')
                 ->whereDate('appointment_date', Carbon::today())
                 ->orderBy('appointment_date')
                 ->limit(3)
                 ->get()
                 ->values(); // reset index
-
+     
             $remaining = $service->citizenServices()
-                ->where('status', 0)
+                ->whereIn('status', [0, 1])
                 ->where('sequence_number', 'like', $prefix . '%')
                 ->whereDate('appointment_date', Carbon::today())
                 ->count();
+
+        
 
             return [
                 'id' => $service->id,
@@ -46,7 +47,8 @@ class AllQueueNumberController extends Controller
                 'remaining' => $remaining,
             ];
         });
-    
+
+
 
     return view('frontend.service-queue-number.index', compact('services'));
 }
@@ -64,7 +66,7 @@ class AllQueueNumberController extends Controller
 
     // Lấy bản ghi đang xử lý (status = 1)
     $processing = $service->citizenServices()
-        ->where('status', 1)
+        ->where('status', 2)
         ->where('sequence_number', 'like', $prefix . '%')
         ->whereDate('appointment_date', Carbon::today())
         ->orderBy('appointment_date')
@@ -72,7 +74,7 @@ class AllQueueNumberController extends Controller
 
     // Lấy người đang chờ đầu tiên (status = 0)
     $waiting = $service->citizenServices()
-        ->where('status', 0)
+        ->whereIn('status', [0, 1])
         ->where('sequence_number', 'like', $prefix . '%')
         ->whereDate('appointment_date', Carbon::today())
         ->orderBy('appointment_date')

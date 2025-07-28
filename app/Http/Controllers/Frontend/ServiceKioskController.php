@@ -211,21 +211,21 @@ class ServiceKioskController extends Controller
     {
         // Lấy người đang xử lý (status = 1)
         $processing = $service->citizenServices()
-            ->where('status', 1)
+            ->where('status', 2)
             ->whereDate('appointment_date', Carbon::today())
             ->latest('updated_date')
             ->first();
 
         // Lấy người đang chờ kế tiếp (status = 0)
         $waiting = $service->citizenServices()
-            ->where('status', 0)
+            ->whereIn('status', [0, 1])
             ->whereDate('appointment_date', Carbon::today())
             ->orderBy('appointment_date')
             ->first();
 
         // Số người còn lại (status = 0)
         $remaining = $service->citizenServices()
-            ->where('status', 0)
+            ->whereIn('status', [0, 1])
             ->whereDate('appointment_date', Carbon::today())
             ->count();
 

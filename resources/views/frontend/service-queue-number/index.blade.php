@@ -66,7 +66,7 @@
                                         );
                                     @endphp
                                     <p
-                                        class="{{ $item->status === 1 ? 'processing-order text-danger' : 'wait-order' }} fs-40 fw-medium mb-0">
+                                        class="{{ $item->status === 2 ? 'processing-order text-danger' : 'wait-order' }} fs-40 fw-medium mb-0">
                                         {{ $item->sequence_number }} - {{ $time->format('H:i') }}
                                     </p>
                                 @endforeach
@@ -145,7 +145,7 @@
                     queueBox.innerHTML = '';
 
                     queueData.forEach(item => {
-                        const isProcessing = item.status === 1;
+                        const isProcessing = item.status === 2;
                         queueBox.innerHTML += `
                     <p class="${isProcessing ? 'processing-order text-danger' : 'wait-order'} fs-40 fw-medium mb-0">
                         ${item.sequence_number} - ${formatTime(item.appointment_date)}
