@@ -14,14 +14,14 @@
                 <div class="header-text d-flex flex-column">
                     <p class="header-title mb-0">
                         @if (!empty($setting->system_name))
-                        {{-- Nếu có chữ SOSR thì đưa vào <span> --}}
+                            {{-- Nếu có chữ SOSR thì đưa vào <span> --}}
                             {!! str_contains($setting->system_name, 'SOSR')
-                            ? str_replace('SOSR', '<span class="text-dark">SOSR</span>', $setting->system_name)
-                            : $setting->system_name !!}
-                            @else
+                                ? str_replace('SOSR', '<span class="text-dark">SOSR</span>', $setting->system_name)
+                                : $setting->system_name !!}
+                        @else
                             HỆ THỐNG ĐĂNG KÍ DỊCH VỤ MỘT CỬA
                             <span class="text-dark">SOSR</span>
-                            @endif
+                        @endif
                     </p>
                     <span class="address">
                         {{ $setting->ward_name ?? 'PHƯỜNG QUANG TRUNG - TỈNH NGHỆ AN' }}
@@ -29,11 +29,14 @@
                 </div>
             </div>
 
-            <div class="header-right mx-auto col-6 col-lg-6 d-flex justify-content-md-end justify-content-center align-items-center gap-3">
+            <div
+                class="header-right mx-auto col-6 col-lg-6 d-flex justify-content-md-end justify-content-center align-items-center gap-3">
+                <a class="button-kiosk d-flex justify-content-center align-items-center"
+                    href="{{ route('service-queue-number.index') }}">Hiển thị màn hình quầy</a>
 
                 @can('service-kiosk-manager.index')
-                <a class="button-kiosk d-flex justify-content-center align-items-center"
-                    href="{{ route('service-kiosk-manager.index') }}">Hiển thị màn hình trên KIOSK</a>
+                    <a class="button-kiosk d-flex justify-content-center align-items-center"
+                        href="{{ route('service-kiosk-manager.index') }}">Hiển thị màn hình trên KIOSK</a>
                 @endcan
 
                 <form method="POST" action="{{ route('logout') }}">

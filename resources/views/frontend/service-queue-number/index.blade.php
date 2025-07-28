@@ -30,7 +30,7 @@
             <div class="logo-wrapper rounded-circle position-absolute start-0 top-50 translate-middle-y ms-4 z-3 p-3">
                 <a class="cursor-pointer" href="#">
                     <img src="{{ !empty($setting->logo) ? asset($setting->logo) : asset('frontend/assets/images/logo.png') }}"
-                        alt="logo" class="img-fluid">
+                        alt="logo" class="img-fluid logo">
                 </a>
             </div>
 

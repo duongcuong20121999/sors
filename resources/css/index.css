@@ -107,7 +107,7 @@ body.modal-open {
 }
 
 .container-fluid {
-    max-width: 1490px;
+    max-width: 1560px;
     width: 100%;
     margin: 0 auto;
     padding: 0 15px;
@@ -2957,7 +2957,7 @@ body.modal-open {
 }
 
 .display-system-parameter-configuration {
-    height: 780px;
+    height: 900px;
 }
 
 .form-zalo-qr {

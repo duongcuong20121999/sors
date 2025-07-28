@@ -31,6 +31,13 @@ h1 {
     margin: 0 2vw 1.5vw 0vw;
 }
 
+.logo {
+    width: 100px;
+    height: auto;
+    border-radius: 50%;
+    padding: 5px;
+}
+
 
 .fs-96 {
     font-size: 7vw !important;
