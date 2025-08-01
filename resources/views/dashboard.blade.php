@@ -23,17 +23,15 @@
                 </a>
             </div>
             <div>
-                
+
             </div>
             <!-- Chọn trạng thái -->
-            <div class="choose-status d-flex align-items-center" data-bs-toggle="dropdown" style="margin-right: 20px"
-                id="choose-status">
+            <div class="choose-status d-flex align-items-center" style="margin-right: 20px" id="choose-status">
                 <label class="m-2">Chọn trạng thái:</label>
                 <p id="selected-status" class="mb-0"></p>
 
                 <div class="dropdown ms-2">
-                    <button class="btn btn-outline-secondary dropdown-toggle p-2 d-flex align-items-center" da type="button"
-                        id="statusDropdownButton" aria-expanded="false">
+                    <button class="btn btn-outline-secondary dropdown-toggle p-2 d-flex align-items-center" data-bs-toggle="dropdown" type="button" id="statusDropdownButton" aria-expanded="false">
                         <ion-icon name="chevron-down-outline" class="ms-2"></ion-icon>
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="statusDropdownButton" id="status-dropdown-list">
@@ -56,7 +54,7 @@
             </div>
 
             <!-- Chọn dịch vụ -->
-            <div class="choose-service d-flex align-items-center" id="choose-service" >
+            <div class="choose-service d-flex align-items-center" id="choose-service">
                 <label for="choose-service" class="m-2">Chọn dịch vụ:</label>
                 <p id="selected-service" class="mb-0"></p>
 
@@ -86,7 +84,7 @@
 
             <div class="search">
                 <input placeholder="Tên Công dân cần tìm" class="input" id="search-citizen"
-                    value="{{ request('service_code') }}">
+                    value="{{ request('citizen_name') }}">
 
                 <svg class="icon search-icon" aria-hidden="true" viewBox="0 0 24 24">
                     <g>
@@ -100,7 +98,7 @@
 
         @if (isset($citizenServices))
             <div id="citizen-services-list" class="display-main-screen">
-                <div id="citizen-service-list">
+                <div id="citizen-service-list" data-service-id="{{ $selectedService->id ?? '' }}">
                     @include('partials._citizen_service_list', ['citizenServices' => $citizenServices])
                 </div>
             </div>
@@ -440,6 +438,8 @@
 
     </main>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    @vite(['resources/js/app.js'])
+    {{-- <script src="https://js.pusher.com/7.0/pusher.min.js"></script> --}}
 
     <script>
         const assetBaseUrl = "{{ asset('frontend/assets/images') }}";
@@ -580,9 +580,9 @@
                 url: "{{ route('dashboard') }}",
                 method: 'GET',
                 data: {
-                    service_code: JSON.stringify(serviceCodes),
+                    service_code: serviceCode,
                     citizen_name: citizenName,
-                    value_status: JSON.stringify(statusArray)
+                    value_status: statusArray
                 },
                 success: function(res) {
                     $('#citizen-service-list').html(res);
@@ -953,19 +953,6 @@
             });
         }
 
-        let updateInterval = 5000;
-
-        async function getUpdateInterval() {
-            try {
-                const response = await fetch('/api/time-update');
-                const data = await response.json();
-                if (data && data.time_update) {
-                    updateInterval = data.time_update * 1000;
-                }
-            } catch (error) {
-                console.error('Lỗi khi lấy thời gian cập nhật:', error);
-            }
-        }
 
         function autoReloadCitizenServices() {
             // === B1: Lưu lại các checkbox đang được tick ===
@@ -1013,8 +1000,14 @@
             });
         }
 
-        getUpdateInterval().then(() => {
-            setInterval(autoReloadCitizenServices, updateInterval);
+
+        document.addEventListener('DOMContentLoaded', function() {
+            window.Echo.channel('citizen-services')
+                .listen('.citizen.services', (e) => {
+                    console.log('📡 Nhận được event:', e);
+                    autoReloadCitizenServices();
+
+                });
         });
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -1029,9 +1022,19 @@
             });
         });
 
+        document.addEventListener('DOMContentLoaded', function() {
+           document.getElementById('choose-status').addEventListener('click', function(e) {
+                const dropdownBtn = document.getElementById('statusDropdownButton');
+                const dropdownMenu = document.getElementById('status-dropdown-list');
 
+                if (dropdownBtn.contains(e.target) || dropdownMenu.contains(e.target)) return;
 
+                const dropdown = bootstrap.Dropdown.getOrCreateInstance(dropdownMenu);
+                dropdown.toggle();
+            });
+        });
     </script>
+
 
 
 

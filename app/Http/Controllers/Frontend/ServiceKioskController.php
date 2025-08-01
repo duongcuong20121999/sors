@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\frontend;
 
+
+use App\Events\CitizenServicesDashboard;
 use App\Events\CounterUpdated;
 use App\Events\QueueUpdated;
 use App\Http\Controllers\Controller;
@@ -169,6 +171,7 @@ class ServiceKioskController extends Controller
         $citizenServiceRecord->save();
 
 
+
         $prefix = str_pad($service->order, 1, '0', STR_PAD_LEFT) . '00';
 
         $citizens = $service->citizenServices()
@@ -188,7 +191,7 @@ class ServiceKioskController extends Controller
 
         $remaining = $totalWaiting;
 
-        // 🔁 Emit sự kiện realtime
+        event(new CitizenServicesDashboard($service->id, $citizens, $remaining));
         event(new QueueUpdated($service->id, $citizens, $remaining));
 
         $this->broadcastCounterQueue($service);
@@ -209,27 +212,26 @@ class ServiceKioskController extends Controller
 
     public function broadcastCounterQueue($service)
     {
-        // Lấy người đang xử lý (status = 1)
+
         $processing = $service->citizenServices()
             ->where('status', 2)
             ->whereDate('appointment_date', Carbon::today())
             ->latest('updated_date')
             ->first();
 
-        // Lấy người đang chờ kế tiếp (status = 0)
+
         $waiting = $service->citizenServices()
             ->whereIn('status', [0, 1])
             ->whereDate('appointment_date', Carbon::today())
             ->orderBy('appointment_date')
             ->first();
 
-        // Số người còn lại (status = 0)
+
         $remaining = $service->citizenServices()
             ->whereIn('status', [0, 1])
             ->whereDate('appointment_date', Carbon::today())
             ->count();
 
-        // Emit sự kiện CounterUpdated
         event(new CounterUpdated(
             $service->id,
             optional($processing)->toArray(),

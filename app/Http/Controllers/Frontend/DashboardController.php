@@ -19,7 +19,6 @@ class DashboardController extends Controller
      */
     public function index(Request $request)
     {
-
         $services = Service::all()->sortBy('order');
         $statusOptions = getAllStatusCS();
 
@@ -32,45 +31,37 @@ class DashboardController extends Controller
 
         // Lọc theo mã dịch vụ nếu có
         if ($request->filled('service_code')) {
-            $serviceCodes = json_decode($request->service_code, true);
+            $decoded = json_decode($request->service_code, true);
 
-            if (is_array($serviceCodes)) {
-                $query->whereHas('service', function ($q) use ($serviceCodes) {
-                    $q->whereIn('code', $serviceCodes);
-                });
-            } else {
-                $query->whereHas('service', function ($q) use ($request) {
-                    $q->where('code', $request->service_code);
+            if (is_array($decoded) && count($decoded) > 0) {
+                $query->whereHas('service', function ($q) use ($decoded) {
+                    $q->whereIn('code', $decoded);
                 });
             }
         }
 
         // Lọc theo tên công dân nếu có
-        if ($request->filled('citizen_name')) {
+        if ($request->filled('citizen_name') && trim($request->citizen_name) !== '') {
             $query->whereHas('citizen', function ($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->citizen_name . '%');
+                $q->where('name', 'like', '%' . trim($request->citizen_name) . '%');
             });
         }
 
+        // Lọc theo trạng thái nếu có
         if ($request->filled('value_status')) {
-            $statuses = json_decode($request->value_status, true);
+            $decoded = json_decode($request->value_status, true);
 
-            if (is_array($statuses)) {
-                $query->whereIn('status', $statuses);
-            } else {
-                $query->where('status', $statuses); // fallback nếu chỉ 1 trạng thái
+            if (is_array($decoded) && count($decoded) > 0) {
+                $query->whereIn('status', $decoded);
             }
         }
 
-        // Lấy dữ liệu
         $citizenServices = $query->orderBy('appointment_date')->get();
 
-        // Trả về kết quả dưới dạng view nếu là yêu cầu AJAX
         if ($request->ajax()) {
             return view('partials._citizen_service_list', compact('citizenServices'))->render();
         }
 
-        // Trả về kết quả đầy đủ với danh sách dịch vụ
         return view('dashboard', compact('citizenServices', 'services', 'request', 'statusOptions'));
     }
 
@@ -165,21 +156,18 @@ class DashboardController extends Controller
             $cs->update(['status' => 2]);
             $this->updateQueueInfo($cs->service);
             $this->broadcastCounterQueue($cs->service);
-
         }
 
         if ($request->status == 2 && $request->cf_completed == "on") {
             $cs->update(['status' => 3]);
             $this->updateQueueInfo($cs->service);
             $this->broadcastCounterQueue($cs->service);
-
         }
 
         if ($request->status == 3 && $request->cf_cancel == "on") {
             $cs->update(['status' => 4]);
             $this->updateQueueInfo($cs->service);
             $this->broadcastCounterQueue($cs->service);
-
         }
 
         // Lấy lại danh sách filter
@@ -247,7 +235,6 @@ class DashboardController extends Controller
         if ($service->service) {
             $this->updateQueueInfo($service->service);
             $this->broadcastCounterQueue($service->service);
-
         }
 
 
@@ -398,13 +385,13 @@ class DashboardController extends Controller
             ->first();
 
         $waiting = $service->citizenServices()
-            ->whereIn('status', [0,1])
+            ->whereIn('status', [0, 1])
             ->whereDate('appointment_date', \Carbon\Carbon::today())
             ->orderBy('appointment_date')
             ->first();
 
         $remaining = $service->citizenServices()
-            ->whereIn('status', [0,1])
+            ->whereIn('status', [0, 1])
             ->whereDate('appointment_date', \Carbon\Carbon::today())
             ->count();
 
@@ -465,7 +452,6 @@ class DashboardController extends Controller
         foreach ($uniqueServices as $service) {
             $this->updateQueueInfo($service);
             $this->broadcastCounterQueue($service);
-
         }
 
 

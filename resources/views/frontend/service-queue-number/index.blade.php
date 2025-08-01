@@ -63,7 +63,7 @@
                                     @php
                                         $time = \Carbon\Carbon::parse($item->appointment_date)->setTimezone(
                                             'Asia/Ho_Chi_Minh',
-                                        );
+                                        );  
                                     @endphp
                                     <p
                                         class="{{ $item->status === 2 ? 'processing-order text-danger' : 'wait-order' }} fs-40 fw-medium mb-0">
