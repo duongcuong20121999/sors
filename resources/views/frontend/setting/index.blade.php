@@ -57,13 +57,6 @@
 
                                         </div>
                                     </div>
-                                    <div class="mb-3">
-                                        <label class="mb-1" for="time-update">Thời gian cập nhật STT (giây):</label>
-                                        <input type="number" name="time_update" id="time-update"
-                                            class="form-control system-name-input"
-                                            placeholder="Nhập thời gian (tính bằng giây)" min="1" step="1" 
-                                             value="{{ old('time_update', $setting->time_update ?? '') }}"/>
-                                    </div>
 
                                     <div class="mb-3">
                                         <label class="mb-1" for="time-update">Thông báo tin tức</label>

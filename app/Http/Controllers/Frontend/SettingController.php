@@ -80,7 +80,6 @@ class SettingController extends Controller
         $setting->ward_name = $request->ward_name;
         $setting->url_api_print = $request->url_api_print;
 
-        $setting->time_update = $request->time_update;
         $setting->news_ticker = $request->news_ticker;
 
 
