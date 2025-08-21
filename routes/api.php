@@ -26,6 +26,7 @@ Route::post('/citizen-services/cancel-status', [CitizenServiceController::class,
 Route::post('/citizen-services/upload-file/{id}', [CitizenServiceController::class, 'uploadFile']);
 Route::get('/citizen-service/files/{id}', [CitizenServiceController::class, 'getFiles']);
 Route::post('/citizen-service/files/{id}', [CitizenServiceController::class, 'deleteFile']);
+Route::post('/citizen-service/ratings/{id}', [CitizenServiceController::class, 'storeRating']);
 Route::get('/time-update', [SettingController::class, 'getTimeUpdate']);
 
 

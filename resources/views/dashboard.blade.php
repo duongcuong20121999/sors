@@ -1004,7 +1004,6 @@
         document.addEventListener('DOMContentLoaded', function() {
             window.Echo.channel('citizen-services')
                 .listen('.citizen.services', (e) => {
-                    console.log('📡 Nhận được event:', e);
                     autoReloadCitizenServices();
 
                 });

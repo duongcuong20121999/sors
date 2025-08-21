@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Enums\Status;
 use App\Helpers\GroupStatus;
 use App\Models\CitizenServiceFile;
+use App\Models\Rating;
 use Illuminate\Http\Request;
 use App\Models\Citizen;
 use App\Models\Service;
@@ -405,5 +406,27 @@ class CitizenServiceController extends Controller
             'success' => true,
             'message' => 'Xoá file thành công.'
         ]);
+    }
+
+     public function storeRating(Request $request, $id)
+    {
+      
+        $request->validate([
+            'rating' => 'required|integer|min:1|max:5',
+            'note' => 'nullable|string',
+        ]);
+
+        $rating = Rating::create([
+            'citizen_service_id' => $id,
+            'rating' => $request->rating,
+            'note' => $request->note,
+            'created_at' => now(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Đánh giá dịch vụ thành công',
+            'data' => $rating
+        ], 201);
     }
 }
