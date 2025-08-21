@@ -408,6 +408,23 @@ class CitizenServiceController extends Controller
         ]);
     }
 
+    public function getRating($id)
+    {
+        $rating = Rating::where('citizen_service_id', $id)->get();
+
+        if (!$rating) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không tìm thấy đánh giá',
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $rating
+        ], 200);
+    }
+
      public function storeRating(Request $request, $id)
     {
       
